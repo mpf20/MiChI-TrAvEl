@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel Planner ✈</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --rose:#F9C8D4;--rose2:#F4A7BA;--rose3:#E8809A;--rose4:#D4607A;
+  --lila:#E8E0F8;--lila2:#D0C4F0;--lila3:#A896DC;--lila4:#7C64C0;
+  --sky:#C8E8F8;--sky2:#A0D0F0;--sky3:#5AAEDD;
+  --white:#FEFCFF;--cream:#FAF7FC;--card:#FFFFFF;
+  --txt:#2C1B3A;--txt2:#6B4F7A;--txt3:#A08AAE;
+  --border:#EAE0F2;--border2:#D8CCEC;
+  --ok:#5CB87E;--warn:#E8A84C;--err:#E05870;
+  --r:14px;--r2:22px;--shadow:0 2px 16px rgba(100,60,140,0.08);
+  --shadow2:0 8px 40px rgba(100,60,140,0.14);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--txt);min-height:100vh;overflow-x:hidden}
+*{font-family:'DM Sans',sans-serif!important}
+
+/* ── STARS BACKGROUND ── */
+#stars-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.6}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(254,252,255,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem}
+.nav-inner{max-width:1200px;margin:0 auto;height:58px;display:flex;align-items:center;gap:0.5rem}
+.nav-logo{font-family:'DM Sans',sans-serif;font-size:1.15rem;font-weight:600;color:var(--rose4);margin-right:1rem;white-space:nowrap;letter-spacing:-0.01em}
+.nav-items{display:flex;gap:2px;flex-wrap:wrap;flex:1}
+.nav-btn{background:none;border:none;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:400;color:var(--txt3);padding:6px 10px;border-radius:8px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.nav-btn:hover{background:var(--lila);color:var(--lila4)}
+.nav-btn.active{background:var(--rose);color:var(--rose4);font-weight:500}
+.nav-trip{font-size:0.75rem;color:var(--txt3);margin-left:auto;white-space:nowrap}
+
+/* ── PAGES ── */
+.page{display:none;min-height:100vh;padding-top:70px;position:relative;z-index:1}
+.page.active{display:block}
+.container{max-width:1100px;margin:0 auto;padding:2rem}
+
+/* ── HOME PAGE ── */
+#page-home{display:flex;align-items:center;justify-content:center;min-height:100vh;padding-top:0;position:relative;overflow:hidden}
+#space-bg{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+.home-content{text-align:center;position:relative;z-index:2;padding:2rem}
+.home-title{font-size:clamp(2.4rem,6vw,4.8rem);font-weight:600;color:#fff;line-height:1.1;margin-bottom:0.5rem;letter-spacing:-0.03em}
+.home-title span{color:var(--rose);font-style:italic;font-weight:300}
+.home-sub{font-size:0.88rem;color:rgba(255,255,255,0.45);margin-bottom:3rem;letter-spacing:0.12em;text-transform:uppercase}
+.home-question{font-size:clamp(1.3rem,3.5vw,2rem);color:#fff;margin-bottom:2rem;font-weight:300;opacity:0.9}
+.country-search-wrap{position:relative;max-width:480px;margin:0 auto}
+.country-input{width:100%;padding:1rem 1.4rem;font-family:'DM Sans',sans-serif;font-size:1.05rem;border:1.5px solid rgba(249,200,212,0.35);border-radius:50px;background:rgba(255,255,255,0.06);color:#fff;outline:none;transition:.3s;backdrop-filter:blur(10px)}
+.country-input::placeholder{color:rgba(255,255,255,0.35)}
+.country-input:focus{border-color:var(--rose);background:rgba(255,255,255,0.1)}
+.country-dropdown{position:absolute;top:calc(100% + 8px);left:0;right:0;background:rgba(12,6,28,0.97);border:1px solid rgba(249,200,212,0.25);border-radius:16px;overflow:hidden;backdrop-filter:blur(20px);z-index:100;max-height:320px;overflow-y:auto}
+.country-option{padding:0.85rem 1.4rem;color:rgba(255,255,255,0.85);cursor:pointer;display:flex;align-items:center;gap:0.8rem;font-size:0.95rem;transition:.2s;border-bottom:1px solid rgba(255,255,255,0.05)}
+.country-option:hover{background:rgba(249,200,212,0.15);color:#fff}
+.country-flag{font-size:1.3rem}
+
+/* ── PLANE (only on home) ── */
+#floating-plane{position:absolute;z-index:3;pointer-events:none;transition:opacity .6s}
+
+/* ── COVER ── */
+#page-cover{background:var(--white)}
+.cover-hero{width:100%;height:58vh;min-height:340px;position:relative;overflow:hidden;border-radius:0 0 2rem 2rem}
+.cover-collage{width:100%;height:100%;display:grid;grid-template-columns:1.8fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:3px;background:#0a0318}
+.cover-img{position:relative;overflow:hidden;opacity:0;animation:fadeImg .7s ease forwards}
+.cover-img img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;transition:.3s}
+.cover-img:nth-child(1){grid-row:1/3;animation-delay:.05s}
+.cover-img:nth-child(2){animation-delay:.18s}
+.cover-img:nth-child(3){animation-delay:.3s}
+.cover-img:nth-child(4){animation-delay:.42s}
+.cover-img:nth-child(5){animation-delay:.54s}
+@keyframes fadeImg{to{opacity:1}}
+.cover-overlay{position:absolute;bottom:0;left:0;right:0;padding:2rem 2.5rem;background:linear-gradient(to top,rgba(20,8,40,0.85) 0%,transparent 100%)}
+.cover-country{font-size:clamp(2rem,5vw,3.2rem);color:#fff;font-weight:600;letter-spacing:-0.02em}
+.cover-subtitle{color:rgba(255,255,255,0.7);font-size:0.95rem;margin-top:0.3rem}
+.form-section{background:var(--card);border-radius:var(--r2);padding:2rem;margin:2rem auto;max-width:900px;border:1px solid var(--border);box-shadow:var(--shadow)}
+.form-title{font-size:1.2rem;font-weight:600;color:var(--txt);margin-bottom:1.5rem;letter-spacing:-0.01em}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+.form-group{display:flex;flex-direction:column;gap:0.4rem}
+.form-label{font-size:0.78rem;font-weight:500;color:var(--txt2);text-transform:uppercase;letter-spacing:0.05em}
+.form-input{padding:0.7rem 1rem;border:1.5px solid var(--border2);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.95rem;color:var(--txt);background:var(--cream);outline:none;transition:.2s}
+.form-input:focus{border-color:var(--lila3);background:var(--white)}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23A08AAE' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 1rem center;padding-right:2.5rem}
+.btn-primary{background:linear-gradient(135deg,var(--rose2),var(--lila3));color:#fff;border:none;padding:0.85rem 2.5rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:500;cursor:pointer;transition:.3s;box-shadow:0 4px 20px rgba(212,96,122,0.25)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(212,96,122,0.35)}
+.btn-secondary{background:var(--lila);color:var(--lila4);border:1.5px solid var(--lila2);padding:0.7rem 1.8rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:500;cursor:pointer;transition:.3s}
+.btn-secondary:hover{background:var(--lila2)}
+
+/* ── INFO CARDS ── */
+.info-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin:2rem auto;max-width:900px}
+.info-card{background:var(--card);border-radius:var(--r);padding:1.2rem;border:1px solid var(--border);text-align:center;box-shadow:var(--shadow)}
+.info-card .label{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--txt3);margin-bottom:0.4rem}
+.info-card .value{font-size:1.25rem;color:var(--txt);font-weight:600}
+.info-card .sub{font-size:0.78rem;color:var(--txt2);margin-top:0.2rem}
+
+/* ── COUNTDOWN ── */
+.countdown-card{background:linear-gradient(135deg,#1a0a30,#0d1a3a);border-radius:var(--r2);padding:2rem;text-align:center;max-width:900px;margin:2rem auto;color:#fff;position:relative;overflow:hidden}
+.countdown-card::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
+.countdown-title{font-size:0.82rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;letter-spacing:0.1em;text-transform:uppercase}
+.countdown-nums{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap}
+.cd-unit{text-align:center}
+.cd-num{font-size:3.5rem;font-weight:300;line-height:1;color:var(--rose)}
+.cd-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.45);margin-top:0.2rem}
+
+/* ── READINESS ── */
+.readiness-card{background:var(--card);border-radius:var(--r2);padding:2rem;max-width:900px;margin:2rem auto;border:1px solid var(--border);box-shadow:var(--shadow)}
+.readiness-pct{font-size:3rem;font-weight:600;color:var(--lila4);letter-spacing:-0.03em}
+.readiness-bar{height:8px;background:var(--lila);border-radius:50px;margin:1rem 0;overflow:hidden}
+.readiness-fill{height:100%;background:linear-gradient(90deg,var(--rose2),var(--lila3));border-radius:50px;transition:width 1s ease}
+.readiness-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.8rem;margin-top:1.2rem}
+.r-item{background:var(--cream);border-radius:10px;padding:0.8rem;border:1px solid var(--border)}
+.r-item-label{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--txt3);margin-bottom:0.4rem}
+.r-item-bar{height:5px;background:var(--border2);border-radius:50px;overflow:hidden;margin-bottom:0.4rem}
+.r-item-fill{height:100%;border-radius:50px;transition:width 1s .3s ease}
+.r-item-pct{font-size:0.78rem;font-weight:500;color:var(--txt2)}
+
+/* ── DOCS PAGE ── */
+.semaphore{display:inline-flex;align-items:center;gap:0.5rem;padding:0.4rem 1rem;border-radius:50px;font-size:0.82rem;font-weight:500}
+.sem-green{background:#e8f8ed;color:#2d7a4a}
+.sem-yellow{background:#fdf4e0;color:#8a6120}
+.sem-red{background:#fde8ec;color:#8a2030}
+.doc-item{display:flex;align-items:flex-start;gap:1rem;padding:1rem;background:var(--cream);border-radius:10px;border:1px solid var(--border);margin-bottom:0.7rem}
+.doc-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.2s;background:var(--white)}
+.doc-check.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.doc-required{font-size:0.7rem;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;background:var(--rose);color:var(--rose4);padding:2px 7px;border-radius:20px;margin-left:auto;flex-shrink:0}
+
+/* ── FLIGHTS TABLE ── */
+.table-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:0.85rem}
+thead th{background:var(--cream);padding:0.8rem 1rem;text-align:left;font-size:0.72rem;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;color:var(--txt2);border-bottom:1px solid var(--border2);white-space:nowrap}
+tbody td{padding:0.75rem 1rem;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:hover{background:var(--lila);background:rgba(232,224,248,0.4)}
+.editable{cursor:text;outline:none;border-radius:4px;transition:.15s;min-width:60px}
+.editable:hover{background:var(--lila)}
+.editable:focus{background:var(--white);box-shadow:inset 0 0 0 1.5px var(--lila3);border-radius:6px;padding:2px 4px}
+.score-badge{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;font-size:0.8rem;font-weight:500;color:#fff}
+.score-a{background:var(--ok)}
+.score-b{background:var(--warn)}
+.score-c{background:var(--err)}
+.rank-badge{font-size:1.2rem;font-weight:500}
+.tag-yes{color:var(--ok);font-size:1rem}
+.tag-no{color:var(--err);font-size:1rem}
+.add-row-btn{background:none;border:1.5px dashed var(--border2);color:var(--txt3);padding:0.6rem 1.5rem;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.85rem;transition:.2s;margin-top:0.8rem}
+.add-row-btn:hover{border-color:var(--lila3);color:var(--lila4);background:var(--lila)}
+
+/* ── FARE CARDS ── */
+.fare-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin:1.5rem 0}
+.fare-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.2rem;transition:.2s}
+.fare-card:hover{border-color:var(--lila2);box-shadow:var(--shadow)}
+.fare-name{font-size:1rem;font-weight:600;margin-bottom:0.8rem;color:var(--txt)}
+.fare-row{display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;padding:0.3rem 0;color:var(--txt2)}
+.fare-row .icon{font-size:1rem}
+
+/* ── BUDGET ── */
+.budget-bar{height:14px;background:var(--border);border-radius:50px;margin:1.2rem 0;overflow:hidden;position:relative}
+.budget-fill{height:100%;border-radius:50px;transition:width 1s ease;position:relative}
+.budget-label{display:flex;justify-content:space-between;font-size:0.82rem;color:var(--txt2);margin-bottom:0.3rem}
+.budget-row{background:var(--cream);border-radius:10px;padding:1rem 1.2rem;border:1px solid var(--border);margin-bottom:0.7rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.budget-icon{font-size:1.4rem;width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:var(--lila);border-radius:8px}
+.budget-name{font-weight:500;font-size:0.9rem;flex:1}
+.budget-input{border:1.5px solid var(--border2);border-radius:8px;padding:0.4rem 0.8rem;font-size:0.9rem;font-family:'DM Sans',sans-serif;color:var(--txt);width:120px;text-align:right;background:var(--white)}
+.budget-total{background:linear-gradient(135deg,var(--lila),var(--rose));border-radius:var(--r);padding:1.2rem 1.5rem;display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem}
+.budget-status{display:inline-flex;align-items:center;gap:0.4rem;padding:0.35rem 0.9rem;border-radius:50px;font-size:0.82rem;font-weight:500}
+
+/* ── PLACES ── */
+.category-tabs{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.cat-tab{background:var(--cream);border:1.5px solid var(--border);border-radius:50px;padding:0.4rem 1.1rem;font-size:0.82rem;cursor:pointer;transition:.2s;color:var(--txt2)}
+.cat-tab:hover,.cat-tab.active{background:var(--rose);border-color:var(--rose2);color:var(--rose4);font-weight:500}
+.places-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.2rem}
+.place-card{background:var(--card);border-radius:var(--r2);overflow:hidden;border:1px solid var(--border);transition:.25s;cursor:pointer}
+.place-card:hover{transform:translateY(-4px);box-shadow:var(--shadow2)}
+.place-img{height:160px;position:relative;overflow:hidden;background:var(--lila)}
+.place-img img{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+.place-cat-badge{position:absolute;top:10px;left:10px;background:rgba(255,255,255,0.92);border-radius:50px;padding:3px 10px;font-size:0.72rem;font-weight:500;color:var(--txt2)}
+.place-status{position:absolute;top:10px;right:10px;border-radius:50px;padding:3px 10px;font-size:0.72rem;font-weight:500}
+.place-status.want{background:rgba(249,200,212,0.9);color:var(--rose4)}
+.place-status.visited{background:rgba(92,184,126,0.9);color:#1a5c35}
+.place-body{padding:1rem}
+.place-name{font-size:1rem;font-weight:600;margin-bottom:0.5rem;letter-spacing:-0.01em}
+.place-meta{display:flex;gap:1rem;font-size:0.78rem;color:var(--txt3);flex-wrap:wrap}
+.place-actions{display:flex;gap:0.5rem;margin-top:0.8rem}
+.place-btn{flex:1;padding:0.45rem;border-radius:8px;border:1.5px solid var(--border2);font-size:0.78rem;cursor:pointer;transition:.2s;background:none;color:var(--txt2);font-family:'DM Sans',sans-serif}
+.place-btn:hover{background:var(--cream)}
+.place-btn.active-want{background:var(--rose);border-color:var(--rose2);color:var(--rose4)}
+.place-btn.active-visited{background:#e8f8ed;border-color:#9fddb8;color:#2d7a4a}
+
+/* ── PACKING ── */
+.pack-section{margin-bottom:2rem}
+.pack-section-title{font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--txt);display:flex;align-items:center;gap:0.7rem}
+.pack-item{display:flex;align-items:center;gap:0.8rem;padding:0.7rem 1rem;background:var(--cream);border-radius:8px;border:1px solid var(--border);margin-bottom:0.5rem;transition:.2s}
+.pack-item.done{opacity:0.55}
+.pack-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--border2);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.2s;background:var(--white);font-size:0.7rem}
+.pack-check.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.pack-name{font-size:0.9rem;flex:1}
+.pack-name.done{text-decoration:line-through;color:var(--txt3)}
+
+/* ── RECO PAGE ── */
+.reco-winner{background:linear-gradient(135deg,#1a0a30,#0d1a3a);border-radius:var(--r2);padding:2rem;color:#fff;margin-bottom:1.5rem}
+.reco-crown{font-size:2rem;margin-bottom:0.5rem}
+.reco-title{font-size:1.6rem;font-weight:600;letter-spacing:-0.02em}
+.reco-why{color:rgba(255,255,255,0.65);font-size:0.88rem;line-height:1.6;margin-top:0.5rem}
+
+/* ── DASHBOARD ── */
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem}
+.dash-card{background:var(--card);border-radius:var(--r2);border:1px solid var(--border);padding:1.5rem;box-shadow:var(--shadow)}
+.dash-card-title{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--txt3);margin-bottom:1rem}
+.dash-hero{grid-column:1/-1;background:linear-gradient(135deg,#1a0a30,#0d1a3a);color:#fff;border-color:transparent}
+
+/* ── TRIP TYPE ── */
+.trip-types{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:2rem}
+.trip-type-btn{flex:1;min-width:120px;padding:1.2rem;border-radius:var(--r);border:2px solid var(--border2);background:var(--white);cursor:pointer;transition:.25s;text-align:center;font-family:'DM Sans',sans-serif}
+.trip-type-btn:hover{border-color:var(--lila2)}
+.trip-type-btn.active{border-color:var(--lila3);background:var(--lila)}
+.trip-type-icon{font-size:1.8rem;margin-bottom:0.4rem}
+.trip-type-name{font-size:0.9rem;font-weight:500;color:var(--txt)}
+.trip-type-desc{font-size:0.75rem;color:var(--txt3);margin-top:0.2rem}
+
+/* ── PAGE HEADER ── */
+.page-header{max-width:1100px;margin:0 auto;padding:2rem 2rem 0;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.page-header h1{font-size:1.8rem;font-weight:600;color:var(--txt);letter-spacing:-0.02em}
+.page-header .dest-tag{background:var(--rose);color:var(--rose4);padding:0.3rem 1rem;border-radius:50px;font-size:0.82rem;font-weight:500}
+
+/* ── SECTION DIVIDER ── */
+.sdivider{height:1px;background:var(--border);margin:2rem 0}
+
+/* ── MOBILE ── */
+@media(max-width:700px){
+  nav{padding:0 1rem}
+  .nav-items{gap:0}
+  .nav-btn{font-size:0.72rem;padding:5px 7px}
+  .container{padding:1rem}
+  .cover-collage{grid-template-columns:1fr 1fr}
+  .countdown-nums{gap:1rem}
+  .cd-num{font-size:2.5rem}
+  .home-title{font-size:2.5rem}
+}
+
+/* ── ANIMATIONS ── */
+@keyframes twinkle{from{opacity:0.2}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.fade-in{animation:slideUp .5s ease both}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:2rem;right:2rem;background:#1a0a30;color:#fff;padding:0.8rem 1.5rem;border-radius:50px;font-size:0.88rem;z-index:9999;opacity:0;transform:translateY(10px);transition:.3s;border-left:4px solid var(--rose)}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* ── HOSPEDAJE TABLE ── */
+.hospedaje-wrap{overflow-x:auto}
+.hsp-rating{display:flex;gap:2px}
+.star-filled{color:var(--warn)}
+.star-empty{color:var(--border2)}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <svg id="space-bg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <radialGradient id="gal1" cx="30%" cy="40%" r="60%">
+        <stop offset="0%" stop-color="#3d1060" stop-opacity="0.7"/>
+        <stop offset="100%" stop-color="#05021a" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="gal2" cx="75%" cy="65%" r="50%">
+        <stop offset="0%" stop-color="#0d2a5e" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#05021a" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="gal3" cx="55%" cy="20%" r="35%">
+        <stop offset="0%" stop-color="#4a1040" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="#05021a" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <!-- Deep space background -->
+    <rect width="100%" height="100%" fill="#05021a"/>
+    <!-- Galaxy nebulas -->
+    <rect width="100%" height="100%" fill="url(#gal1)"/>
+    <rect width="100%" height="100%" fill="url(#gal2)"/>
+    <rect width="100%" height="100%" fill="url(#gal3)"/>
+    <!-- Stars layer - rendered by JS -->
+    <g id="svg-stars"></g>
+    <!-- Milky Way band -->
+    <ellipse cx="50%" cy="55%" rx="45%" ry="8%" fill="rgba(200,180,255,0.04)" transform="rotate(-20,50%,50%)"/>
+    <ellipse cx="50%" cy="55%" rx="35%" ry="5%" fill="rgba(180,160,255,0.03)" transform="rotate(-20,50%,50%)"/>
+    <!-- Animated plane path (CSS animated) -->
+    <g id="svg-plane" style="transform-origin:center">
+      <!-- Plane body - pink/rose -->
+      <g id="plane-group">
+        <!-- Trail -->
+        <line id="plane-trail" x1="0" y1="0" x2="-60" y2="0" stroke="rgba(249,200,212,0.25)" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <!-- Body -->
+        <ellipse cx="0" cy="0" rx="22" ry="7" fill="#F4A7BA"/>
+        <!-- Nose -->
+        <ellipse cx="20" cy="0" rx="7" ry="5" fill="#F9C8D4"/>
+        <!-- Cockpit window -->
+        <ellipse cx="14" cy="-2" rx="5" ry="3" fill="#C8E8F8" opacity="0.8"/>
+        <!-- Wing top -->
+        <polygon points="-2,-7 14,-7 8,6 -6,6" fill="#E8809A"/>
+        <!-- Wing bottom (small) -->
+        <polygon points="2,7 12,7 8,12 0,12" fill="#D4607A"/>
+        <!-- Tail fin -->
+        <polygon points="-18,-7 -10,-7 -12,0 -20,0" fill="#E8809A"/>
+        <!-- Window dots -->
+        <circle cx="2" cy="-1" r="2" fill="rgba(255,255,255,0.6)"/>
+        <circle cx="-4" cy="-1" r="2" fill="rgba(255,255,255,0.6)"/>
+        <circle cx="-10" cy="-1" r="2" fill="rgba(255,255,255,0.6)"/>
+        <!-- Engine glow -->
+        <ellipse cx="-5" cy="9" rx="4" ry="2" fill="rgba(249,200,212,0.4)"/>
+      </g>
+    </g>
+  </svg>
+  <div class="home-content">
+    <div class="home-title">Tu próximo<br><span>aventura</span> te espera</div>
+    <div class="home-sub">✦ Travel Planner · Edición Premium ✦</div>
+    <div class="home-question">¿A qué país vas? 🌍</div>
+    <div class="country-search-wrap">
+      <input class="country-input" id="country-input" type="text" placeholder="Escribe un país..." autocomplete="off" oninput="filterCountries(this.value)" onfocus="showDropdown()" onblur="hideDropdown()">
+      <div class="country-dropdown" id="country-dropdown" style="display:none"></div>
+    </div>
+  </div>
+</div>
+<nav id="main-nav" style="display:none">
+  <div class="nav-inner">
+    <div class="nav-logo">✈ Travel Planner</div>
+    <div class="nav-items">
+      <button class="nav-btn" onclick="showPage('cover')">Destino</button>
+      <button class="nav-btn" onclick="showPage('docs')">Documentos</button>
+      <button class="nav-btn" onclick="showPage('flights')">Vuelos</button>
+      <button class="nav-btn" onclick="showPage('hotels')">Hospedaje</button>
+      <button class="nav-btn" onclick="showPage('budget')">Presupuesto</button>
+      <button class="nav-btn" onclick="showPage('places')">Lugares</button>
+      <button class="nav-btn" onclick="showPage('packing')">Equipaje</button>
+      <button class="nav-btn" onclick="showPage('reco')">Recomendaciones</button>
+      <button class="nav-btn" onclick="showPage('dashboard')">Dashboard</button>
+    </div>
+    <div class="nav-trip" id="nav-trip-label"></div>
+  </div>
+</nav>
+
+<!-- COVER / DATES -->
+<div class="page" id="page-cover">
+  <div class="cover-hero" id="cover-hero">
+    <div class="cover-collage" id="cover-collage"></div>
+    <div class="cover-overlay">
+      <div class="cover-country" id="cover-country-name">País</div>
+      <div class="cover-subtitle" id="cover-country-subtitle">Elige tus fechas y detalles del viaje</div>
+    </div>
+  </div>
+
+  <div class="form-section fade-in">
+    <div class="form-title">Detalles del viaje</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Fecha de salida</label>
+        <input class="form-input" type="date" id="dep-date" onchange="saveTrip()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fecha de regreso</label>
+        <input class="form-input" type="date" id="ret-date" onchange="saveTrip()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ciudad de salida</label>
+        <input class="form-input" type="text" id="dep-city" placeholder="Ej: Bogotá (BOG)" oninput="autocompleteCity(this,'dep-city-sug')" onchange="saveTrip()" autocomplete="off">
+        <div id="dep-city-sug" class="country-dropdown" style="display:none;position:absolute;z-index:200;background:var(--white);border:1px solid var(--border2);border-radius:10px;max-height:180px;overflow-y:auto"></div>
+      </div>
+      <div class="form-group" style="position:relative">
+        <label class="form-label">Ciudad de llegada</label>
+        <input class="form-input" type="text" id="arr-city" placeholder="Ej: Buenos Aires (EZE)" oninput="autocompleteCity(this,'arr-city-sug')" onchange="saveTrip()" autocomplete="off">
+        <div id="arr-city-sug" class="country-dropdown" style="display:none;position:absolute;z-index:200;background:var(--white);border:1px solid var(--border2);border-radius:10px;max-height:180px;overflow-y:auto"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Número de viajeros</label>
+        <select class="form-input form-select" id="travelers" onchange="saveTrip()">
+          <option value="1">1 viajero</option>
+          <option value="2">2 viajeros</option>
+          <option value="3">3 viajeros</option>
+          <option value="4">4 viajeros</option>
+          <option value="5">5 viajeros</option>
+          <option value="6">6+ viajeros</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Maletas de bodega</label>
+        <select class="form-input form-select" id="bags" onchange="saveTrip()">
+          <option value="0">Sin maleta de bodega</option>
+          <option value="1">1 maleta</option>
+          <option value="2">2 maletas</option>
+          <option value="3">3 maletas</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tipo de viaje</label>
+        <select class="form-input form-select" id="trip-type-select" onchange="saveTrip()">
+          <option value="balanced" selected>Balanceado</option>
+          <option value="budget">Económico</option>
+          <option value="premium">Premium</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:1.5rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:center">
+      <button class="btn-primary" onclick="buildInfoCards()">Generar información del viaje →</button>
+      <button class="btn-secondary" onclick="showPage('docs')">Ver documentos</button>
+    </div>
+  </div>
+
+  <div id="info-strip-section" style="display:none;max-width:900px;margin:0 auto;padding:0 2rem">
+    <div class="info-strip" id="info-strip"></div>
+    <div id="countdown-section"></div>
+    <div id="readiness-section" style="margin-bottom:2rem"></div>
+  </div>
+</div>
+
+<!-- DOCS -->
+<div class="page" id="page-docs">
+  <div class="page-header">
+    <h1>Documentos y trámites</h1>
+    <span class="dest-tag" id="docs-dest-tag">–</span>
+    <span id="docs-semaphore" class="semaphore sem-yellow">🟡 En proceso</span>
+  </div>
+  <div class="container" id="docs-container">
+    <p style="color:var(--txt3)">Selecciona un destino primero para ver los requisitos.</p>
+  </div>
+</div>
+
+<!-- FLIGHTS -->
+<div class="page" id="page-flights">
+  <div class="page-header">
+    <h1>Comparador de vuelos</h1>
+    <span class="dest-tag" id="flights-dest-tag">–</span>
+  </div>
+  <div class="container">
+    <div id="fare-legend"></div>
+    <div class="sdivider"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:0.8rem">
+      <div style="font-size:1.05rem;font-weight:600;color:var(--txt)">Opciones de vuelo</div>
+      <button class="add-row-btn" onclick="addFlightRow()">+ Agregar vuelo</button>
+    </div>
+    <div class="table-wrap">
+      <table id="flights-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Aerolínea</th>
+            <th>Precio (COP)</th>
+            <th>Escalas</th>
+            <th>Duración</th>
+            <th>Mochila</th>
+            <th>Cabina</th>
+            <th>Bodega</th>
+            <th>Cambios</th>
+            <th>Reembolso</th>
+            <th>Salida</th>
+            <th>Llegada</th>
+            <th>Puntos</th>
+            <th>Notas</th>
+          </tr>
+        </thead>
+        <tbody id="flights-tbody"></tbody>
+      </table>
+    </div>
+    <div id="flights-ranking" style="margin-top:1.5rem"></div>
+  </div>
+</div>
+
+<!-- HOTELS -->
+<div class="page" id="page-hotels">
+  <div class="page-header">
+    <h1>Comparador de hospedajes</h1>
+    <span class="dest-tag" id="hotels-dest-tag">–</span>
+  </div>
+  <div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:0.8rem">
+      <div style="font-size:1.05rem;font-weight:600;color:var(--txt)">Opciones de alojamiento</div>
+      <button class="add-row-btn" onclick="addHotelRow()">+ Agregar alojamiento</button>
+    </div>
+    <div class="table-wrap hospedaje-wrap">
+      <table id="hotels-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Nombre</th>
+            <th>Precio/noche</th>
+            <th>Noches</th>
+            <th>Total</th>
+            <th>Desayuno</th>
+            <th>Min aeropuerto</th>
+            <th>Min turístico</th>
+            <th>Playa (min)</th>
+            <th>Seguridad</th>
+            <th>Valoración</th>
+            <th>WiFi</th>
+            <th>Canc. gratis</th>
+            <th>Puntos</th>
+            <th>Notas</th>
+          </tr>
+        </thead>
+        <tbody id="hotels-tbody"></tbody>
+      </table>
+    </div>
+    <div id="hotels-ranking" style="margin-top:1.5rem"></div>
+  </div>
+</div>
+
+<!-- BUDGET -->
+<div class="page" id="page-budget">
+  <div class="page-header">
+    <h1>Presupuesto del viaje</h1>
+    <span class="dest-tag" id="budget-dest-tag">–</span>
+  </div>
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:start;flex-wrap:wrap">
+      <div>
+        <div class="form-group" style="margin-bottom:1.5rem;max-width:280px">
+          <label class="form-label">Presupuesto total (COP)</label>
+          <input class="form-input" type="number" id="budget-total-input" placeholder="0" oninput="updateBudget()" style="font-size:1.1rem">
+        </div>
+        <div id="budget-rows"></div>
+        <div class="budget-total" id="budget-summary"></div>
+      </div>
+      <div id="budget-chart-wrap" style="min-width:220px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PLACES -->
+<div class="page" id="page-places">
+  <div class="page-header">
+    <h1>Lugares turísticos</h1>
+    <span class="dest-tag" id="places-dest-tag">–</span>
+  </div>
+  <div class="container">
+    <div class="category-tabs" id="category-tabs"></div>
+    <div class="places-grid" id="places-grid"></div>
+  </div>
+</div>
+
+<!-- PACKING -->
+<div class="page" id="page-packing">
+  <div class="page-header">
+    <h1>Lista de equipaje inteligente</h1>
+    <span class="dest-tag" id="packing-dest-tag">–</span>
+  </div>
+  <div class="container" id="packing-container"></div>
+</div>
+
+<!-- RECO -->
+<div class="page" id="page-reco">
+  <div class="page-header">
+    <h1>Recomendaciones finales</h1>
+  </div>
+  <div class="container" id="reco-container"></div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="page" id="page-dashboard">
+  <div class="container">
+    <div class="page-header" style="padding:2rem 0 1rem">
+      <h1>Dashboard del viaje</h1>
+    </div>
+    <div class="dash-grid" id="dashboard-grid"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+// DATA & STATE
+// ══════════════════════════════════════════════
+const COUNTRIES = [
+  {name:'Argentina',flag:'🇦🇷',currency:'ARS – Peso argentino',lang:'Español',tz:'UTC-3',flight:'7-9h desde BOG',pax:'Visa libre 90d',climate:'Templado',temp:'15-28°C',rain:'35%',season:'Verano (dic-feb)',budget:'COP 6.000.000 – 12.000.000',
+   imgs:['https://images.unsplash.com/photo-1612294037637-ec328d0e075e?w=900&q=80&auto=format','https://images.unsplash.com/photo-1591546083584-41c0bdc34a94?w=500&q=80&auto=format','https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80&auto=format','https://images.unsplash.com/photo-1543051932-6ef9fecfff07?w=500&q=80&auto=format','https://images.unsplash.com/photo-1585464231875-d9ef1f5ad396?w=500&q=80&auto=format'],
+   fb:['10','20','30','40','50'],cities:['Buenos Aires (EZE)','Córdoba (COR)','Mendoza (MDZ)','Bariloche (BRC)']},
+  {name:'Brasil',flag:'🇧🇷',currency:'BRL – Real brasileño',lang:'Portugués',tz:'UTC-3',flight:'5-7h desde BOG',pax:'Pasaporte válido',climate:'Tropical',temp:'24-35°C',rain:'60%',season:'Verano húmedo',budget:'COP 5.500.000 – 10.000.000',
+   imgs:['https://images.unsplash.com/photo-1516306580123-e6e52b1b7b5f?w=900&q=80&auto=format','https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=500&q=80&auto=format','https://images.unsplash.com/photo-1544989164-31807f8bfc3c?w=500&q=80&auto=format','https://images.unsplash.com/photo-1518639192441-8fce0a366e2e?w=500&q=80&auto=format','https://images.unsplash.com/photo-1543059080-f9b1272213d5?w=500&q=80&auto=format'],
+   fb:['100','110','120','130','140'],cities:['Río de Janeiro (GIG)','São Paulo (GRU)','Florianópolis (FLN)','Salvador (SSA)','Manaos (MAO)']},
+  {name:'México',flag:'🇲🇽',currency:'MXN – Peso mexicano',lang:'Español',tz:'UTC-6',flight:'4-5h desde BOG',pax:'Pasaporte válido',climate:'Variado',temp:'20-32°C',rain:'30%',season:'Temporada seca',budget:'COP 4.500.000 – 9.000.000',
+   imgs:['https://images.unsplash.com/photo-1518638150340-f706e86654de?w=900&q=80&auto=format','https://images.unsplash.com/photo-1512813195386-6cf811ad3542?w=500&q=80&auto=format','https://images.unsplash.com/photo-1547995886-6dc09384c6e8?w=500&q=80&auto=format','https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=500&q=80&auto=format','https://images.unsplash.com/photo-1535359056830-d4badde79747?w=500&q=80&auto=format'],
+   fb:['200','210','220','230','240'],cities:['Ciudad de México (MEX)','Cancún (CUN)','Guadalajara (GDL)','Monterrey (MTY)','Los Cabos (SJD)']},
+  {name:'España',flag:'🇪🇸',currency:'EUR – Euro',lang:'Español',tz:'UTC+1',flight:'10-12h desde BOG',pax:'Pasaporte + visa Schengen',climate:'Mediterráneo',temp:'18-28°C',rain:'20%',season:'Primavera / Otoño',budget:'COP 9.000.000 – 18.000.000',
+   imgs:['https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=900&q=80&auto=format','https://images.unsplash.com/photo-1543783207-ec64e4d95325?w=500&q=80&auto=format','https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80&auto=format','https://images.unsplash.com/photo-1508050919630-b135583b29ab?w=500&q=80&auto=format','https://images.unsplash.com/photo-1555993539-1732b0258235?w=500&q=80&auto=format'],
+   fb:['300','310','320','330','340'],cities:['Madrid (MAD)','Barcelona (BCN)','Málaga (AGP)','Sevilla (SVQ)','Valencia (VLC)']},
+  {name:'Francia',flag:'🇫🇷',currency:'EUR – Euro',lang:'Francés',tz:'UTC+1',flight:'11-13h desde BOG',pax:'Pasaporte + visa Schengen',climate:'Oceánico',temp:'12-25°C',rain:'40%',season:'Primavera',budget:'COP 11.000.000 – 22.000.000',
+   imgs:['https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900&q=80&auto=format','https://images.unsplash.com/photo-1431274172761-fca41d930114?w=500&q=80&auto=format','https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=500&q=80&auto=format','https://images.unsplash.com/photo-1549144511-f099e773c147?w=500&q=80&auto=format','https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80&auto=format'],
+   fb:['400','410','420','430','440'],cities:['París (CDG)','Niza (NCE)','Lyon (LYS)','Burdeos (BOD)']},
+  {name:'Italia',flag:'🇮🇹',currency:'EUR – Euro',lang:'Italiano',tz:'UTC+1',flight:'12-14h desde BOG',pax:'Pasaporte + visa Schengen',climate:'Mediterráneo',temp:'16-30°C',rain:'25%',season:'Primavera',budget:'COP 10.000.000 – 20.000.000',
+   imgs:['https://images.unsplash.com/photo-1529260830199-42c24126f198?w=900&q=80&auto=format','https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?w=500&q=80&auto=format','https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?w=500&q=80&auto=format','https://images.unsplash.com/photo-1498307833015-e7b400441eb8?w=500&q=80&auto=format','https://images.unsplash.com/photo-1533676802871-eca1ae998cd5?w=500&q=80&auto=format'],
+   fb:['500','510','520','530','540'],cities:['Roma (FCO)','Milán (MXP)','Venecia (VCE)','Florencia (FLR)','Nápoles (NAP)']},
+  {name:'Estados Unidos',flag:'🇺🇸',currency:'USD – Dólar americano',lang:'Inglés',tz:'UTC-5 a UTC-8',flight:'5-8h desde BOG',pax:'Pasaporte + visa B1/B2',climate:'Variado',temp:'15-30°C',rain:'30%',season:'Verano',budget:'COP 8.000.000 – 18.000.000',
+   imgs:['https://images.unsplash.com/photo-1485738422979-f5c462d49f74?w=900&q=80&auto=format','https://images.unsplash.com/photo-1501466044931-62695aada8e9?w=500&q=80&auto=format','https://images.unsplash.com/photo-1534430480872-3498386e7856?w=500&q=80&auto=format','https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=500&q=80&auto=format','https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&q=80&auto=format'],
+   fb:['600','610','620','630','640'],cities:['Miami (MIA)','Nueva York (JFK)','Los Ángeles (LAX)','Orlando (MCO)','Las Vegas (LAS)']},
+  {name:'Japón',flag:'🇯🇵',currency:'JPY – Yen japonés',lang:'Japonés',tz:'UTC+9',flight:'20-23h desde BOG',pax:'Pasaporte válido (visa libre)',climate:'Templado',temp:'12-26°C',rain:'45%',season:'Primavera / Otoño',budget:'COP 12.000.000 – 25.000.000',
+   imgs:['https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=900&q=80&auto=format','https://images.unsplash.com/photo-1492571350019-22de08371fd3?w=500&q=80&auto=format','https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=500&q=80&auto=format','https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=500&q=80&auto=format','https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?w=500&q=80&auto=format'],
+   fb:['700','710','720','730','740'],cities:['Tokio (NRT)','Osaka (KIX)','Kioto','Hiroshima','Fukuoka (FUK)']},
+  {name:'Perú',flag:'🇵🇪',currency:'PEN – Sol peruano',lang:'Español',tz:'UTC-5',flight:'2-3h desde BOG',pax:'Solo cédula colombiana',climate:'Variado',temp:'14-24°C',rain:'20%',season:'Seca (jun-oct)',budget:'COP 2.500.000 – 6.000.000',
+   imgs:['https://images.unsplash.com/photo-1526392060635-9d6019884377?w=900&q=80&auto=format','https://images.unsplash.com/photo-1580619305218-8423a7ef79b4?w=500&q=80&auto=format','https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=500&q=80&auto=format','https://images.unsplash.com/photo-1569880153113-76161c291d1f?w=500&q=80&auto=format','https://images.unsplash.com/photo-1543169158-d16246bf7efe?w=500&q=80&auto=format'],
+   fb:['800','810','820','830','840'],cities:['Lima (LIM)','Cusco (CUZ)','Arequipa (AQP)','Iquitos (IQT)']},
+  {name:'Chile',flag:'🇨🇱',currency:'CLP – Peso chileno',lang:'Español',tz:'UTC-4',flight:'3-4h desde BOG',pax:'Solo cédula colombiana',climate:'Mediterráneo/Desértico',temp:'14-26°C',rain:'15%',season:'Verano',budget:'COP 3.500.000 – 8.000.000',
+   imgs:['https://images.unsplash.com/photo-1531967735-6f0be08e6c50?w=900&q=80&auto=format','https://images.unsplash.com/photo-1547128870-15f7bdbf2e75?w=500&q=80&auto=format','https://images.unsplash.com/photo-1597429202987-d6ef51be01e9?w=500&q=80&auto=format','https://images.unsplash.com/photo-1598021036553-01f65023e82a?w=500&q=80&auto=format','https://images.unsplash.com/photo-1509027572446-af8401acfdc3?w=500&q=80&auto=format'],
+   fb:['900','910','920','930','940'],cities:['Santiago (SCL)','Punta Arenas (PUQ)','Antofagasta (ANF)','Concepción (CCP)']},
+  {name:'Colombia',flag:'🇨🇴',currency:'COP – Peso colombiano',lang:'Español',tz:'UTC-5',flight:'Vuelo doméstico',pax:'Cédula colombiana',climate:'Tropical variado',temp:'18-30°C',rain:'50%',season:'Según región',budget:'COP 1.000.000 – 4.000.000',
+   imgs:['https://images.unsplash.com/photo-1583010005039-47a401a73e5e?w=900&q=80&auto=format','https://images.unsplash.com/photo-1568600891597-41dadb12c5b0?w=500&q=80&auto=format','https://images.unsplash.com/photo-1574483060694-67f42dbdf2e8?w=500&q=80&auto=format','https://images.unsplash.com/photo-1570268859898-1df2a4e7a83c?w=500&q=80&auto=format','https://images.unsplash.com/photo-1593994457408-bae4b2c63f49?w=500&q=80&auto=format'],
+   fb:['1000','1010','1020','1030','1040'],cities:['Bogotá (BOG)','Medellín (MDE)','Cali (CLO)','Cartagena (CTG)','Barranquilla (BAQ)','Pereira (PEI)','Bucaramanga (BGA)']},
+  {name:'Tailandia',flag:'🇹🇭',currency:'THB – Baht tailandés',lang:'Tailandés',tz:'UTC+7',flight:'22-25h desde BOG',pax:'Pasaporte + visa libre 30d',climate:'Tropical húmedo',temp:'26-35°C',rain:'55%',season:'Seca (nov-abr)',budget:'COP 8.000.000 – 16.000.000',
+   imgs:['https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=900&q=80&auto=format','https://images.unsplash.com/photo-1528181304800-259b08848526?w=500&q=80&auto=format','https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=500&q=80&auto=format','https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=500&q=80&auto=format','https://images.unsplash.com/photo-1562602833-1eed1813d1ca?w=500&q=80&auto=format'],
+   fb:['1100','1110','1120','1130','1140'],cities:['Bangkok (BKK)','Phuket (HKT)','Chiang Mai (CNX)','Krabi (KBV)']},
+];
+
+const CITIES = [
+  'Bogotá (BOG)','Medellín (MDE)','Cali (CLO)','Cartagena (CTG)','Barranquilla (BAQ)',
+  'Buenos Aires (EZE)','Río de Janeiro (GIG)','São Paulo (GRU)','Lima (LIM)','Santiago (SCL)',
+  'Ciudad de México (MEX)','Cancún (CUN)','Madrid (MAD)','Barcelona (BCN)','París (CDG)',
+  'Miami (MIA)','Nueva York (JFK)','Los Ángeles (LAX)','Orlando (MCO)','Tokio (NRT)',
+  'Osaka (KIX)','Bangkok (BKK)','Phuket (HKT)','Roma (FCO)','Milán (MXP)','Venecia (VCE)',
+  'Cusco (CUZ)','Florencia (FLR)','Amsterdam (AMS)','Dubai (DXB)','Londres (LHR)',
+  'Lisboa (LIS)','Pereira (PEI)','Bucaramanga (BGA)','Bogotá (BOG)','Quito (UIO)',
+];
+
+const DOC_REQUIREMENTS = {
+  default:['Pasaporte vigente (mínimo 6 meses)','Tiquetes de ida y vuelta','Reservas de hospedaje confirmadas','Seguro de viaje con cobertura médica','Dinero en efectivo o tarjeta internacional','Número de contacto de emergencia'],
+  schengen:['Visa Schengen tramitada','Pasaporte vigente (mínimo 6 meses)','Seguro de viaje mínimo €30.000','Reservas de hospedaje','Extractos bancarios últimos 3 meses','Carta de invitación o reservas de actividades','Tiquetes de ida y vuelta','Carta laboral o certificado de ingresos'],
+  usa:['Visa B1/B2 vigente (o ESTA)','Pasaporte vigente','Reserva de hospedaje','Suficiencia económica demostrable','Seguro de viaje','Tiquetes de ida y vuelta','Carta de empleador (si aplica)'],
+  libre:['Pasaporte o cédula colombiana','Tiquetes de ida y vuelta','Reservas de hospedaje (recomendado)','Dinero en efectivo o tarjeta','Seguro de viaje (recomendado)'],
+};
+
+const PLACES_DATA = {
+  Argentina:[
+    {name:'Cataratas del Iguazú',cat:'Naturaleza',emoji:'🌊',time:'1 día',cost:'COP 80.000',dist:'Vuelo interno',img:'https://images.unsplash.com/photo-1547952236-2c71fcf4b9a0?w=500'},
+    {name:'Buenos Aires – La Boca',cat:'Cultura',emoji:'🎨',time:'3 horas',cost:'Gratis',dist:'En la ciudad',img:'https://images.unsplash.com/photo-1612633979680-c72ee12bf96d?w=500'},
+    {name:'Teatro Colón',cat:'Cultura',emoji:'🎭',time:'2 horas',cost:'COP 40.000',dist:'Centro BA',img:'https://images.unsplash.com/photo-1589557416862-a26b1b5a8d79?w=500'},
+    {name:'Mendoza – Tour de vinos',cat:'Gastronomía',emoji:'🍷',time:'Día completo',cost:'COP 150.000',dist:'Vuelo interno',img:'https://images.unsplash.com/photo-1516594798947-e65505dbb29d?w=500'},
+    {name:'Bariloche – Cerro Catedral',cat:'Naturaleza',emoji:'🏔',time:'1-2 días',cost:'COP 200.000',dist:'Vuelo interno',img:'https://images.unsplash.com/photo-1491555103944-7c647fd857e6?w=500'},
+    {name:'Palermo Soho',cat:'Compras',emoji:'🛍',time:'4 horas',cost:'Variable',dist:'BA centro',img:'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=500'},
+  ],
+  Brasil:[
+    {name:'Cristo Redentor',cat:'Imperdibles',emoji:'✝️',time:'3 horas',cost:'COP 70.000',dist:'Rio centro',img:'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=500'},
+    {name:'Copacabana Beach',cat:'Naturaleza',emoji:'🏖',time:'Día completo',cost:'Gratis',dist:'Rio Sur',img:'https://images.unsplash.com/photo-1551953460-0fc03c7d5da5?w=500'},
+    {name:'Amazonia – Manaus',cat:'Naturaleza',emoji:'🌿',time:'3-5 días',cost:'COP 400.000',dist:'Vuelo interno',img:'https://images.unsplash.com/photo-1580502304784-8985b7eb7260?w=500'},
+    {name:'Lapa – Carnaval',cat:'Cultura',emoji:'🎉',time:'Noche',cost:'COP 50.000',dist:'Rio centro',img:'https://images.unsplash.com/photo-1551708866-9f230c9b0e8c?w=500'},
+    {name:'Feijoada carioca',cat:'Gastronomía',emoji:'🍲',time:'2 horas',cost:'COP 35.000',dist:'Varios',img:'https://images.unsplash.com/photo-1594221708779-94832f4320d1?w=500'},
+    {name:'Jardim Botânico',cat:'Fotografía',emoji:'📸',time:'2 horas',cost:'COP 20.000',dist:'Rio',img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500'},
+  ],
+  default:[
+    {name:'Centro histórico',cat:'Imperdibles',emoji:'🏛',time:'4 horas',cost:'Gratis',dist:'0 km',img:'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=500'},
+    {name:'Mercado local',cat:'Gastronomía',emoji:'🥘',time:'2 horas',cost:'COP 30.000',dist:'1-3 km',img:'https://images.unsplash.com/photo-1567521464027-f127ff144326?w=500'},
+    {name:'Museo nacional',cat:'Cultura',emoji:'🎨',time:'3 horas',cost:'COP 20.000',dist:'2 km',img:'https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?w=500'},
+    {name:'Parque natural',cat:'Naturaleza',emoji:'🌿',time:'Día completo',cost:'COP 40.000',dist:'20 km',img:'https://images.unsplash.com/photo-1448375240586-882707db888b?w=500'},
+    {name:'Barrio gastronómico',cat:'Gastronomía',emoji:'🍽',time:'3 horas',cost:'COP 80.000',dist:'3 km',img:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500'},
+    {name:'Mirador panorámico',cat:'Fotografía',emoji:'📸',time:'2 horas',cost:'COP 15.000',dist:'5 km',img:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500'},
+  ]
+};
+
+const PACKING_LISTS = {
+  budget:{
+    'Ropa esencial':['Camisetas x4','Pantalones x2','Ropa interior x5','Calcetines x5','Pijama','Ropa de abrigo ligera','Zapatos cómodos','Sandalia'],
+    'Aseo':['Cepillo de dientes','Crema dental','Jabón/shampoo mini','Desodorante','Bloqueador solar','Toalla microfibra'],
+    'Documentos':['Pasaporte/cédula','Seguro de viaje','Tarjeta bancaria','Efectivo','Reservas impresas'],
+    'Tecnología':['Celular + cargador','Adaptador de corriente','Power bank','Audífonos'],
+  },
+  balanced:{
+    'Ropa':['Camisetas x5','Blusas/camisas x3','Pantalón formal x1','Jeans x2','Ropa interior x6','Calcetines x6','Pijama x2','Chaqueta','Zapatos casuales','Zapatos formales','Sandalias'],
+    'Aseo y cuidado':['Kit dental completo','Shampoo + acondicionador','Crema facial','Bloqueador FPS50','Maquillaje básico','Desodorante','Perfume pequeño','Toalla'],
+    'Documentos':['Pasaporte (vigente >6m)','Visa (si aplica)','Seguro de viaje','Tarjetas bancarias x2','Efectivo en moneda local','Fotos tamaño documento','Reservas impresas'],
+    'Tecnología':['Celular + cable','Adaptador universal','Laptop o tablet','Power bank 20.000mAh','Auriculares','Cámara o trípode pequeño'],
+    'Misceláneos':['Botiquín básico','Medicamentos habituales','Snacks de viaje','Guía de viaje o app','Candado para maleta'],
+  },
+  premium:{
+    'Ropa y accesorios':['Outfits completos x7','Looks formales x2','Loungewear','Traje de baño x2','Ropa deportiva','Calzado día, noche, playa, gym','Bolso de mano','Accesorios y joyería'],
+    'Cuidado personal premium':['Kit skincare completo','Bloqueador FPS50+','Perfumes','Maquillaje completo','Plancha de cabello mini','Kit manicure','Pastillas/vitaminas'],
+    'Documentos premium':['Pasaporte','Visas vigentes','Seguro premium con asistencia 24h','Tarjetas crédito internacionales','Efectivo en varias divisas','Seguro de equipaje'],
+    'Tecnología':['Laptop ultradelgada','iPad + Apple Pencil','AirPods Pro','Cámara mirrorless','Adaptador y cables','Power bank premium','Smart watch'],
+    'Comodidad de viaje':['Almohada de cuello premium','Antifaz + tapones','Kit de higiene de vuelo','Manta de vuelo','Snacks gourmet'],
+  }
+};
+
+// ── State ──
+let state = JSON.parse(localStorage.getItem('tp_state')||'{}');
+state.flights = state.flights||[{airline:'Latam',price:'1200000',stops:'0',duration:'8h',backpack:'✓',cabin:'✓',checked:'✗',changes:'✗',refund:'✗',dep:'10:00',arr:'18:00',notes:'Opción directa'}];
+state.hotels = state.hotels||[{name:'Hotel ejemplo',ppn:'350000',nights:'5',breakfast:'✓',airport:30,tourist:15,beach:999,security:4,rating:4,wifi:'✓',cancel:'✓',notes:'Revisar reseñas'}];
+state.budget = state.budget||{total:10000000,flights:0,hotels:0,food:0,transport:0,activities:0,shopping:0,emergency:0};
+state.docs = state.docs||{};
+state.places = state.places||{};
+state.packing = state.packing||{};
+state.tripType = state.tripType||'balanced';
+
+function saveTrip(){
+  state.depDate = document.getElementById('dep-date')?.value||state.depDate;
+  state.retDate = document.getElementById('ret-date')?.value||state.retDate;
+  state.depCity = document.getElementById('dep-city')?.value||state.depCity;
+  state.arrCity = document.getElementById('arr-city')?.value||state.arrCity;
+  state.travelers = document.getElementById('travelers')?.value||state.travelers;
+  state.bags = document.getElementById('bags')?.value||state.bags;
+  state.tripType = document.getElementById('trip-type-select')?.value||state.tripType;
+  localStorage.setItem('tp_state',JSON.stringify(state));
+}
+
+// ══════════════════════════════════════════════
+// SPACE ILLUSTRATION — SVG stars + animated plane
+// ══════════════════════════════════════════════
+(function(){
+  const svgNS='http://www.w3.org/2000/svg';
+  const starsG=document.getElementById('svg-stars');
+  if(!starsG)return;
+
+  // Generate random stars
+  const starCount=280;
+  for(let i=0;i<starCount;i++){
+    const circle=document.createElementNS(svgNS,'circle');
+    const x=Math.random()*100;
+    const y=Math.random()*100;
+    const r=Math.random()*1.6+0.2;
+    const hue=Math.random()>0.8?'rgba(220,200,255,':'rgba(255,240,250,';
+    circle.setAttribute('cx',x+'%');
+    circle.setAttribute('cy',y+'%');
+    circle.setAttribute('r',r);
+    circle.setAttribute('fill',hue+(Math.random()*0.7+0.3)+')');
+    // Twinkle via CSS animation with random delay
+    const delay=(Math.random()*4).toFixed(2);
+    const dur=(Math.random()*3+2).toFixed(2);
+    circle.style.animation=`twinkle ${dur}s ${delay}s infinite alternate ease-in-out`;
+    starsG.appendChild(circle);
+  }
+
+  // Add a few bigger "feature" stars with cross glow
+  const featureStars=[[15,25],[80,15],[45,70],[65,30],[25,60],[90,55],[10,80]];
+  featureStars.forEach(([xp,yp])=>{
+    const g=document.createElementNS(svgNS,'g');
+    const sz=Math.random()*2+2;
+    const c=document.createElementNS(svgNS,'circle');
+    c.setAttribute('cx',xp+'%');c.setAttribute('cy',yp+'%');
+    c.setAttribute('r',sz);c.setAttribute('fill','rgba(255,240,255,0.9)');
+    const delay=(Math.random()*3).toFixed(2);
+    c.style.animation=`twinkle ${(Math.random()*2+2).toFixed(2)}s ${delay}s infinite alternate`;
+    g.appendChild(c);
+    // Cross arms
+    ['h','v'].forEach(dir=>{
+      const line=document.createElementNS(svgNS,'line');
+      const xPx=xp/100*window.innerWidth;
+      const yPx=yp/100*window.innerHeight;
+      if(dir==='h'){line.setAttribute('x1',(xp-1.5)+'%');line.setAttribute('x2',(xp+1.5)+'%');line.setAttribute('y1',yp+'%');line.setAttribute('y2',yp+'%');}
+      else{line.setAttribute('x1',xp+'%');line.setAttribute('x2',xp+'%');line.setAttribute('y1',(yp-2)+'%');line.setAttribute('y2',(yp+2)+'%');}
+      line.setAttribute('stroke','rgba(255,230,255,0.4)');line.setAttribute('stroke-width','0.5');
+      g.appendChild(line);
+    });
+    starsG.appendChild(g);
+  });
+
+  // Animate the plane across the SVG
+  const planeGroup=document.getElementById('plane-group');
+  if(!planeGroup)return;
+  let px=-80,py=35,angle=0;
+  let frameId=null;
+  function animatePlane(){
+    px+=0.08;
+    py=35+Math.sin(px*0.04)*8;
+    angle=Math.sin(px*0.04)*5;
+    if(px>110)px=-15;
+    planeGroup.setAttribute('transform',`translate(${px}%,${py}%) rotate(${angle})`);
+    frameId=requestAnimationFrame(animatePlane);
+  }
+  animatePlane();
+
+  // Stop plane animation when leaving home page
+  window._stopPlane=function(){
+    if(frameId)cancelAnimationFrame(frameId);
+    frameId=null;
+    const pg=document.getElementById('page-home');
+    if(pg)pg.style.display='none';
+  };
+})();
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.remove('active');if(b.textContent.toLowerCase().includes(id.substring(0,4)))b.classList.add('active')});
+  window.scrollTo(0,0);
+  if(id==='docs')renderDocs();
+  if(id==='flights')renderFlights();
+  if(id==='hotels')renderHotels();
+  if(id==='budget')renderBudget();
+  if(id==='places')renderPlaces();
+  if(id==='packing')renderPacking();
+  if(id==='reco')renderReco();
+  if(id==='dashboard')renderDashboard();
+}
+
+// ══════════════════════════════════════════════
+// COUNTRY SELECTOR
+// ══════════════════════════════════════════════
+let dropdownVisible=false,blurTimeout=null;
+
+function filterCountries(q){
+  if(!q){document.getElementById('country-dropdown').style.display='none';return;}
+  const matches=COUNTRIES.filter(c=>c.name.toLowerCase().includes(q.toLowerCase()));
+  renderDropdown(matches);
+}
+
+function showDropdown(){
+  clearTimeout(blurTimeout);
+  const val=document.getElementById('country-input').value;
+  if(val) filterCountries(val);
+  else renderDropdown(COUNTRIES);
+  dropdownVisible=true;
+}
+
+function hideDropdown(){
+  blurTimeout=setTimeout(()=>{document.getElementById('country-dropdown').style.display='none';dropdownVisible=false;},200);
+}
+
+function renderDropdown(list){
+  const dd=document.getElementById('country-dropdown');
+  dd.innerHTML=list.map(c=>`<div class="country-option" onclick="selectCountry('${c.name}')"><span class="country-flag">${c.flag}</span>${c.name}</div>`).join('');
+  dd.style.display=list.length?'block':'none';
+}
+
+function selectCountry(name){
+  const c=COUNTRIES.find(x=>x.name===name);
+  if(!c)return;
+  state.country=c;
+  localStorage.setItem('tp_state',JSON.stringify(state));
+  document.getElementById('country-dropdown').style.display='none';
+  document.getElementById('main-nav').style.display='block';
+  document.getElementById('nav-trip-label').textContent=c.flag+' '+c.name;
+  // Stop plane animation and hide home
+  if(window._stopPlane)window._stopPlane();
+  buildCoverPage(c);
+  showPage('cover');
+}
+
+// ══════════════════════════════════════════════
+// COVER PAGE
+// ══════════════════════════════════════════════
+function buildCoverPage(c){
+  document.getElementById('cover-country-name').textContent=c.flag+' '+c.name;
+  document.getElementById('cover-country-subtitle').textContent=c.lang+' · '+c.currency+' · '+c.tz;
+  const collage=document.getElementById('cover-collage');
+  const fb=c.fb||['10','20','30','40','50'];
+  collage.innerHTML=c.imgs.map((url,i)=>`
+    <div class="cover-img">
+      <img src="${url}"
+           onerror="this.onerror=null;this.src='https://picsum.photos/seed/${fb[i]||i+10}/800/500'"
+           alt="${c.name} ${i+1}" loading="${i===0?'eager':'lazy'}">
+    </div>`).join('');
+  ['docs','flights','hotels','budget','places','packing'].forEach(id=>{
+    const el=document.getElementById(id+'-dest-tag');
+    if(el)el.textContent=c.flag+' '+c.name;
+  });
+  if(state.depDate)document.getElementById('dep-date').value=state.depDate;
+  if(state.retDate)document.getElementById('ret-date').value=state.retDate;
+  if(state.depCity)document.getElementById('dep-city').value=state.depCity;
+  if(state.arrCity)document.getElementById('arr-city').value=state.arrCity;
+  if(state.travelers)document.getElementById('travelers').value=state.travelers;
+  if(state.bags)document.getElementById('bags').value=state.bags;
+  if(state.tripType)document.getElementById('trip-type-select').value=state.tripType;
+}
+
+function buildInfoCards(){
+  saveTrip();
+  const c=state.country;if(!c){toast('Selecciona un destino primero');return;}
+  const dep=state.depDate,ret=state.retDate;
+  let nights='-';
+  if(dep&&ret){const d=new Date(ret)-new Date(dep);nights=Math.round(d/86400000)+' noches';}
+  document.getElementById('info-strip').innerHTML=[
+    {label:'Moneda',value:c.currency.split('–')[0].trim(),sub:c.currency.split('–')[1]?.trim()||''},
+    {label:'Idioma',value:c.lang,sub:'Oficial'},
+    {label:'Zona horaria',value:c.tz,sub:'Referencia Bogotá UTC-5'},
+    {label:'Vuelo est.',value:c.flight,sub:'Desde Bogotá'},
+    {label:'Temperatura',value:c.temp,sub:c.climate},
+    {label:'Lluvia',value:c.rain,sub:'Probabilidad'},
+    {label:'Estación',value:c.season,sub:'Esperada'},
+    {label:'Duración',value:nights,sub:'Días de viaje'},
+    {label:'Presupuesto est.',value:'',sub:c.budget},
+  ].map(item=>`<div class="info-card"><div class="label">${item.label}</div><div class="value">${item.value||'–'}</div><div class="sub">${item.sub}</div></div>`).join('');
+
+  if(dep){
+    const now=new Date(),depD=new Date(dep);
+    const diff=depD-now;
+    if(diff>0){
+      const days=Math.floor(diff/86400000),hrs=Math.floor((diff%86400000)/3600000),min=Math.floor((diff%3600000)/60000);
+      document.getElementById('countdown-section').innerHTML=`
+      <div class="countdown-card">
+        <div class="countdown-title">Cuenta regresiva para tu viaje ✈</div>
+        <div class="countdown-nums">
+          <div class="cd-unit"><div class="cd-num">${days}</div><div class="cd-label">Días</div></div>
+          <div class="cd-unit"><div class="cd-num">${hrs}</div><div class="cd-label">Horas</div></div>
+          <div class="cd-unit"><div class="cd-num">${min}</div><div class="cd-label">Minutos</div></div>
+        </div>
+      </div>`;
+    }
+  }
+  renderReadiness();
+  document.getElementById('info-strip-section').style.display='block';
+  toast('¡Información generada! ✨');
+}
+
+function renderReadiness(){
+  const cats=['Documentación','Vuelos','Hospedaje','Presupuesto','Equipaje'];
+  const scores=[calcDocScore(),calcFlightScore(),calcHotelScore(),calcBudgetScore(),calcPackScore()];
+  const overall=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+  const colors=['#5CB87E','#F4A7BA','#A896DC','#5AAEDD','#E8A84C'];
+  document.getElementById('readiness-section').innerHTML=`
+  <div class="readiness-card">
+    <div style="display:flex;align-items:baseline;gap:1rem;flex-wrap:wrap">
+      <div class="readiness-pct">${overall}%</div>
+      <div style="color:var(--txt2);font-size:0.9rem">Nivel de preparación</div>
+    </div>
+    <div class="readiness-bar"><div class="readiness-fill" style="width:${overall}%"></div></div>
+    <div class="readiness-items">
+      ${cats.map((cat,i)=>`<div class="r-item"><div class="r-item-label">${cat}</div><div class="r-item-bar"><div class="r-item-fill" style="width:${scores[i]}%;background:${colors[i]}"></div></div><div class="r-item-pct">${scores[i]}%</div></div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function calcDocScore(){
+  if(!state.country)return 0;
+  const key=getDocKey();const reqs=DOC_REQUIREMENTS[key]||DOC_REQUIREMENTS.default;
+  const done=Object.values(state.docs||{}).filter(Boolean).length;
+  return Math.min(100,Math.round((done/reqs.length)*100));
+}
+function calcFlightScore(){return state.flights&&state.flights.length>1?80:state.flights&&state.flights[0]?.airline?40:0;}
+function calcHotelScore(){return state.hotels&&state.hotels.length>1?80:state.hotels&&state.hotels[0]?.name?40:0;}
+function calcBudgetScore(){const b=state.budget||{};const filled=Object.keys(b).filter(k=>k!=='total'&&b[k]>0).length;return Math.round((filled/7)*100);}
+function calcPackScore(){const items=Object.values(state.packing||{});if(!items.length)return 0;const done=items.filter(Boolean).length;return Math.round((done/Math.max(items.length,1))*100);}
+
+function getDocKey(){
+  const name=state.country?.name||'';
+  if(['Francia','Italia','España','Alemania','Portugal'].includes(name))return'schengen';
+  if(name==='Estados Unidos')return'usa';
+  if(['Argentina','Chile','Perú','Colombia','México','Brasil'].includes(name))return'libre';
+  return'default';
+}
+
+// ══════════════════════════════════════════════
+// DOCS
+// ══════════════════════════════════════════════
+function renderDocs(){
+  if(!state.country){document.getElementById('docs-container').innerHTML='<p style="color:var(--txt3)">Selecciona un destino primero.</p>';return;}
+  const key=getDocKey();
+  const reqs=DOC_REQUIREMENTS[key]||DOC_REQUIREMENTS.default;
+  const done=reqs.filter((_,i)=>state.docs[i]).length;
+  const sem=done===reqs.length?'sem-green':done<reqs.length/2?'sem-red':'sem-yellow';
+  const semTxt=done===reqs.length?'🟢 Todo listo':done<reqs.length/2?'🔴 Faltan requisitos':'🟡 En proceso';
+  document.getElementById('docs-semaphore').className='semaphore '+sem;
+  document.getElementById('docs-semaphore').textContent=semTxt;
+  document.getElementById('docs-container').innerHTML=`
+  <div style="margin-bottom:1rem;color:var(--txt2);font-size:0.9rem">${done} de ${reqs.length} documentos listos</div>
+  ${reqs.map((r,i)=>`
+  <div class="doc-item" id="docitem-${i}">
+    <div class="doc-check ${state.docs[i]?'done':''}" onclick="toggleDoc(${i})">${state.docs[i]?'✓':''}</div>
+    <div style="flex:1">
+      <div style="font-size:0.9rem;font-weight:500;color:var(--txt)">${r}</div>
+    </div>
+    ${i<2?'<div class="doc-required">Obligatorio</div>':''}
+  </div>`).join('')}
+  <div style="margin-top:1.5rem;padding:1rem;background:var(--lila);border-radius:var(--r);font-size:0.85rem;color:var(--lila4)">
+    <strong>💡 Consejo:</strong> Guarda copias digitales de todos tus documentos en Google Drive o iCloud antes de viajar.
+  </div>`;
+}
+
+function toggleDoc(i){
+  state.docs[i]=!state.docs[i];
+  saveState();
+  renderDocs();
+  renderReadiness();
+}
+
+// ══════════════════════════════════════════════
+// FLIGHTS
+// ══════════════════════════════════════════════
+function renderFlights(){
+  if(!state.country){document.getElementById('flights-dest-tag').textContent='–';}
+  document.getElementById('fare-legend').innerHTML=`
+  <div class="fare-cards">
+    ${[{n:'Basic',backpack:true,cabin:false,checked:false},{n:'Plus',backpack:true,cabin:true,checked:false},{n:'Flex',backpack:true,cabin:true,checked:true}].map(f=>`
+    <div class="fare-card">
+      <div class="fare-name">${f.n}</div>
+      <div class="fare-row"><span class="icon">${f.backpack?'✅':'❌'}</span> Mochila personal</div>
+      <div class="fare-row"><span class="icon">${f.cabin?'✅':'❌'}</span> Equipaje de cabina</div>
+      <div class="fare-row"><span class="icon">${f.checked?'✅':'❌'}</span> Equipaje de bodega</div>
+    </div>`).join('')}
+  </div>`;
+  renderFlightsTable();
+}
+
+function renderFlightsTable(){
+  const tbody=document.getElementById('flights-tbody');
+  tbody.innerHTML='';
+  (state.flights||[]).forEach((f,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><span class="rank-badge">${i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)}</span></td>
+      <td><div class="editable" contenteditable onblur="updateFlight(${i},'airline',this.textContent)">${f.airline||''}</div></td>
+      <td><div class="editable" contenteditable onblur="updateFlight(${i},'price',this.textContent)">${f.price||''}</div></td>
+      <td><div class="editable" contenteditable onblur="updateFlight(${i},'stops',this.textContent)">${f.stops||'0'}</div></td>
+      <td><div class="editable" contenteditable onblur="updateFlight(${i},'duration',this.textContent)">${f.duration||''}</div></td>
+      ${['backpack','cabin','checked','changes','refund'].map(k=>`<td><div class="editable" contenteditable onblur="updateFlight(${i},'${k}',this.textContent)" style="text-align:center">${f[k]||'✗'}</div></td>`).join('')}
+      <td><div class="editable" contenteditable onblur="updateFlight(${i},'dep',this.textContent)">${f.dep||''}</div></td>
+      <td><div class="editable" contenteditable onblur="updateFlight(${i},'arr',this.textContent)">${f.arr||''}</div></td>
+      <td><span class="score-badge ${scoreClass(calcFlightItemScore(f))}">${calcFlightItemScore(f)}</span></td>
+      <td><div class="editable" contenteditable onblur="updateFlight(${i},'notes',this.textContent)" style="min-width:80px">${f.notes||''}</div></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  renderFlightsRanking();
+}
+
+function calcFlightItemScore(f){
+  let s=50;
+  if(f.stops==='0'||f.stops===0)s+=15;
+  if(f.backpack==='✓')s+=5;
+  if(f.cabin==='✓')s+=10;
+  if(f.checked==='✓')s+=15;
+  if(f.changes==='✓')s+=5;
+  const p=parseInt((f.price||'9999999').replace(/\D/g,''));
+  if(p<800000)s+=10;else if(p>2000000)s-=10;
+  return Math.min(100,Math.max(0,s));
+}
+
+function scoreClass(n){return n>=75?'score-a':n>=50?'score-b':'score-c';}
+
+function updateFlight(i,key,val){state.flights[i][key]=val.trim();saveState();sortFlightsByScore();renderFlightsTable();}
+
+function sortFlightsByScore(){state.flights.sort((a,b)=>calcFlightItemScore(b)-calcFlightItemScore(a));}
+
+function addFlightRow(){
+  state.flights.push({airline:'',price:'',stops:'0',duration:'',backpack:'✗',cabin:'✗',checked:'✗',changes:'✗',refund:'✗',dep:'',arr:'',notes:''});
+  saveState();renderFlightsTable();
+}
+
+function renderFlightsRanking(){
+  if(!state.flights?.length)return;
+  const sorted=[...state.flights].sort((a,b)=>calcFlightItemScore(b)-calcFlightItemScore(a));
+  const best=sorted[0];
+  document.getElementById('flights-ranking').innerHTML=`
+  <div style="background:linear-gradient(135deg,var(--lila),var(--rose));border-radius:var(--r);padding:1.2rem 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+    <span style="font-size:1.5rem">🏆</span>
+    <div>
+      <div style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--txt2)">Mejor opción detectada</div>
+      <div style="font-size:1.3rem;font-weight:500;color:var(--txt)">${best.airline||'Sin nombre'}</div>
+      <div style="font-size:0.82rem;color:var(--txt2)">Precio: ${best.price||'–'} · ${best.stops||0} escalas · ${best.duration||'–'} · Puntuación: ${calcFlightItemScore(best)}/100</div>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+// HOTELS
+// ══════════════════════════════════════════════
+function renderHotels(){
+  renderHotelsTable();
+}
+
+function renderHotelsTable(){
+  const tbody=document.getElementById('hotels-tbody');tbody.innerHTML='';
+  (state.hotels||[]).forEach((h,i)=>{
+    const total=(parseFloat(h.ppn||0)*parseInt(h.nights||0)).toLocaleString('es-CO');
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><span class="rank-badge">${i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)}</span></td>
+      <td><div class="editable" contenteditable onblur="updateHotel(${i},'name',this.textContent)">${h.name||''}</div></td>
+      <td><div class="editable" contenteditable onblur="updateHotel(${i},'ppn',this.textContent)">${h.ppn||''}</div></td>
+      <td><div class="editable" contenteditable onblur="updateHotel(${i},'nights',this.textContent)">${h.nights||''}</div></td>
+      <td>${total}</td>
+      ${['breakfast','wifi','cancel'].map(k=>`<td><div class="editable" contenteditable onblur="updateHotel(${i},'${k}',this.textContent)" style="text-align:center">${h[k]||'✗'}</div></td>`).join('')}
+      <td><div class="editable" contenteditable onblur="updateHotel(${i},'airport',this.textContent)">${h.airport||''}</div></td>
+      <td><div class="editable" contenteditable onblur="updateHotel(${i},'tourist',this.textContent)">${h.tourist||''}</div></td>
+      <td><div class="editable" contenteditable onblur="updateHotel(${i},'beach',this.textContent)">${h.beach||'N/A'}</div></td>
+      <td><div class="editable" contenteditable onblur="updateHotel(${i},'security',this.textContent)">${h.security||'3'}</div></td>
+      <td>${renderStars(h.rating||3)}</td>
+      <td><span class="score-badge ${scoreClass(calcHotelItemScore(h))}">${calcHotelItemScore(h)}</span></td>
+      <td><div class="editable" contenteditable onblur="updateHotel(${i},'notes',this.textContent)" style="min-width:80px">${h.notes||''}</div></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  renderHotelsRanking();
+}
+
+function renderStars(n){
+  n=Math.round(n);
+  return `<div class="hsp-rating">${[1,2,3,4,5].map(i=>`<span class="${i<=n?'star-filled':'star-empty'}">★</span>`).join('')}</div>`;
+}
+
+function calcHotelItemScore(h){
+  let s=40;
+  if(h.breakfast==='✓')s+=10;
+  if(h.wifi==='✓')s+=5;
+  if(h.cancel==='✓')s+=10;
+  const airport=parseInt(h.airport)||999;if(airport<30)s+=10;else if(airport>60)s-=10;
+  const tourist=parseInt(h.tourist)||999;if(tourist<20)s+=10;
+  const sec=parseInt(h.security)||0;s+=sec*2;
+  const rat=parseFloat(h.rating)||0;s+=rat*2;
+  const ppn=parseFloat(h.ppn)||0;if(ppn>0&&ppn<300000)s+=5;
+  return Math.min(100,Math.max(0,s));
+}
+
+function updateHotel(i,key,val){state.hotels[i][key]=val.trim();saveState();sortHotelsByScore();renderHotelsTable();}
+function sortHotelsByScore(){state.hotels.sort((a,b)=>calcHotelItemScore(b)-calcHotelItemScore(a));}
+function addHotelRow(){state.hotels.push({name:'',ppn:'',nights:'',breakfast:'✗',wifi:'✗',cancel:'✗',airport:'',tourist:'',beach:'N/A',security:'3',rating:'3',notes:''});saveState();renderHotelsTable();}
+
+function renderHotelsRanking(){
+  if(!state.hotels?.length)return;
+  const best=[...state.hotels].sort((a,b)=>calcHotelItemScore(b)-calcHotelItemScore(a))[0];
+  document.getElementById('hotels-ranking').innerHTML=`
+  <div style="background:linear-gradient(135deg,var(--sky),var(--lila));border-radius:var(--r);padding:1.2rem 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+    <span style="font-size:1.5rem">🏨</span>
+    <div>
+      <div style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--txt2)">Mejor hospedaje detectado</div>
+      <div style="font-size:1.3rem;font-weight:500;color:var(--txt)">${best.name||'Sin nombre'}</div>
+      <div style="font-size:0.82rem;color:var(--txt2)">COP ${parseFloat(best.ppn||0).toLocaleString('es-CO')}/noche · Puntuación: ${calcHotelItemScore(best)}/100</div>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+// BUDGET
+// ══════════════════════════════════════════════
+const BUDGET_CATS=[
+  {key:'flights',label:'Vuelos',icon:'✈️'},
+  {key:'hotels',label:'Hospedaje',icon:'🏨'},
+  {key:'food',label:'Alimentación',icon:'🍽'},
+  {key:'transport',label:'Transporte local',icon:'🚌'},
+  {key:'activities',label:'Actividades',icon:'🎭'},
+  {key:'shopping',label:'Compras',icon:'🛍'},
+  {key:'emergency',label:'Fondo de emergencia',icon:'🆘'},
+];
+
+function renderBudget(){
+  if(state.country){document.getElementById('budget-dest-tag').textContent=state.country.flag+' '+state.country.name;}
+  if(state.budget?.total)document.getElementById('budget-total-input').value=state.budget.total;
+  const rows=BUDGET_CATS.map(cat=>`
+  <div class="budget-row">
+    <div class="budget-icon">${cat.icon}</div>
+    <div class="budget-name">${cat.label}</div>
+    <input class="budget-input form-input" type="number" id="b-${cat.key}" placeholder="0" value="${state.budget[cat.key]||0}" oninput="updateBudget()" style="border:1.5px solid var(--border2)">
+  </div>`).join('');
+  document.getElementById('budget-rows').innerHTML=rows;
+  updateBudget();
+}
+
+function updateBudget(){
+  const total=parseFloat(document.getElementById('budget-total-input')?.value||0);
+  let spent=0;
+  BUDGET_CATS.forEach(cat=>{
+    const val=parseFloat(document.getElementById('b-'+cat.key)?.value||0);
+    state.budget[cat.key]=val;spent+=val;
+  });
+  state.budget.total=total;
+  const pct=total>0?Math.round((spent/total)*100):0;
+  const status=pct>100?{cls:'sem-red',txt:'⛔ Excede el presupuesto'}:pct>85?{cls:'sem-yellow',txt:'⚠️ Cerca del límite'}:{cls:'sem-green',txt:'✅ Dentro del presupuesto'};
+  document.getElementById('budget-summary').innerHTML=`
+    <div>
+      <div style="font-size:0.78rem;color:var(--txt2);margin-bottom:0.3rem">Total gastado</div>
+      <div style="font-size:1.8rem;font-weight:400;color:var(--txt)">COP ${spent.toLocaleString('es-CO')}</div>
+      <div style="font-size:0.82rem;color:var(--txt2)">de COP ${total.toLocaleString('es-CO')} presupuestados (${pct}%)</div>
+    </div>
+    <span class="budget-status ${status.cls}" style="font-size:0.85rem">${status.txt}</span>`;
+  saveState();
+}
+
+// ══════════════════════════════════════════════
+// PLACES
+// ══════════════════════════════════════════════
+const ALL_CATS=['Todos','Imperdibles','Naturaleza','Gastronomía','Cultura','Fotografía','Compras'];
+
+function renderPlaces(){
+  if(state.country)document.getElementById('places-dest-tag').textContent=state.country.flag+' '+state.country.name;
+  const tabs=document.getElementById('category-tabs');
+  tabs.innerHTML=ALL_CATS.map((c,i)=>`<div class="cat-tab ${i===0?'active':''}" onclick="filterPlaces('${c}',this)">${c}</div>`).join('');
+  renderPlacesGrid('Todos');
+}
+
+function filterPlaces(cat,el){
+  document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderPlacesGrid(cat);
+}
+
+function renderPlacesGrid(cat){
+  const name=state.country?.name||'default';
+  let places=PLACES_DATA[name]||PLACES_DATA.default;
+  if(cat!=='Todos')places=places.filter(p=>p.cat===cat);
+  document.getElementById('places-grid').innerHTML=places.map((p,i)=>{
+    const pid=name+'_'+i;
+    const want=state.places[pid]==='want',visited=state.places[pid]==='visited';
+    const fbSeed=200+i*17;
+    return`<div class="place-card">
+      <div class="place-img">
+        <img src="${p.img}" onerror="this.onerror=null;this.src='https://picsum.photos/seed/${fbSeed}/500/320'" alt="${p.name}" loading="lazy">
+        <span class="place-cat-badge">${p.emoji} ${p.cat}</span>
+        ${want?'<span class="place-status want">❤️ Quiero ir</span>':''}
+        ${visited?'<span class="place-status visited">✓ Visitado</span>':''}
+      </div>
+      <div class="place-body">
+        <div class="place-name">${p.name}</div>
+        <div class="place-meta">
+          <span>⏱ ${p.time}</span>
+          <span>💰 ${p.cost}</span>
+          <span>📍 ${p.dist}</span>
+        </div>
+        <div class="place-actions">
+          <button class="place-btn ${want?'active-want':''}" onclick="togglePlace('${pid}','want')">❤️ Quiero ir</button>
+          <button class="place-btn ${visited?'active-visited':''}" onclick="togglePlace('${pid}','visited')">✓ Visitado</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function togglePlace(pid,status){
+  state.places[pid]=state.places[pid]===status?null:status;
+  saveState();
+  const activeCat=document.querySelector('.cat-tab.active')?.textContent||'Todos';
+  renderPlacesGrid(activeCat);
+}
+
+// ══════════════════════════════════════════════
+// PACKING
+// ══════════════════════════════════════════════
+function renderPacking(){
+  if(state.country)document.getElementById('packing-dest-tag').textContent=state.country.flag+' '+state.country.name;
+  const type=state.tripType||'balanced';
+  const list=PACKING_LISTS[type]||PACKING_LISTS.balanced;
+  const icons={Ropa:'👗','Ropa esencial':'👗','Ropa y accesorios':'👗',Aseo:'🧴','Aseo y cuidado':'🧴','Cuidado personal premium':'💄',Documentos:'📄','Documentos premium':'📄',Tecnología:'📱','Misceláneos':'🎒','Comodidad de viaje':'✈️'};
+  document.getElementById('packing-container').innerHTML=Object.entries(list).map(([section,items])=>`
+  <div class="pack-section">
+    <div class="pack-section-title">${icons[section]||'📦'} ${section}</div>
+    ${items.map(item=>{
+      const key=section+'_'+item;
+      const done=state.packing[key];
+      return`<div class="pack-item ${done?'done':''}">
+        <div class="pack-check ${done?'done':''}" onclick="togglePack('${key}')">${done?'✓':''}</div>
+        <div class="pack-name ${done?'done':''}">${item}</div>
+      </div>`;
+    }).join('')}
+  </div>`).join('');
+}
+
+function togglePack(key){
+  state.packing[key]=!state.packing[key];
+  saveState();
+  renderPacking();
+}
+
+// ══════════════════════════════════════════════
+// RECO
+// ══════════════════════════════════════════════
+function renderReco(){
+  const c=state.country;
+  const bestFlight=state.flights?.length?[...state.flights].sort((a,b)=>calcFlightItemScore(b)-calcFlightItemScore(a))[0]:null;
+  const bestHotel=state.hotels?.length?[...state.hotels].sort((a,b)=>calcHotelItemScore(b)-calcHotelItemScore(a))[0]:null;
+  const b=state.budget||{};
+  const spent=Object.keys(b).filter(k=>k!=='total').reduce((acc,k)=>acc+(parseFloat(b[k])||0),0);
+  const docScore=calcDocScore(),packScore=calcPackScore();
+  const wantPlaces=Object.entries(state.places||{}).filter(([,v])=>v==='want').length;
+  const visitedPlaces=Object.entries(state.places||{}).filter(([,v])=>v==='visited').length;
+  document.getElementById('reco-container').innerHTML=`
+  <div class="reco-winner" style="margin-bottom:1.2rem">
+    <div class="reco-crown">✈️</div>
+    <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.5);margin-bottom:0.3rem">Mejor aerolínea</div>
+    <div class="reco-title">${bestFlight?.airline||'—'}</div>
+    <div class="reco-why">${bestFlight?`Puntuación ${calcFlightItemScore(bestFlight)}/100 · Precio: ${bestFlight.price||'–'} · ${bestFlight.stops||0} escalas · Duración: ${bestFlight.duration||'–'}`:'Agrega opciones en el comparador de vuelos para ver recomendaciones.'}</div>
+  </div>
+  <div class="reco-winner" style="background:linear-gradient(135deg,#0d1a3a,#1a0a30)">
+    <div class="reco-crown">🏨</div>
+    <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.5);margin-bottom:0.3rem">Mejor hospedaje</div>
+    <div class="reco-title">${bestHotel?.name||'—'}</div>
+    <div class="reco-why">${bestHotel?`Puntuación ${calcHotelItemScore(bestHotel)}/100 · COP ${parseFloat(bestHotel.ppn||0).toLocaleString('es-CO')}/noche · ${bestHotel.breakfast==='✓'?'Desayuno incluido · ':''}${bestHotel.cancel==='✓'?'Cancelación gratuita':''}`:'Agrega opciones en el comparador de hospedajes para ver recomendaciones.'}</div>
+  </div>
+  <div class="info-strip" style="max-width:100%;margin:1.5rem 0">
+    <div class="info-card"><div class="label">Gasto total</div><div class="value" style="font-size:1rem">COP ${spent.toLocaleString('es-CO')}</div><div class="sub">Presupuestado</div></div>
+    <div class="info-card"><div class="label">Preparación</div><div class="value">${Math.round((calcDocScore()+calcFlightScore()+calcHotelScore()+calcBudgetScore()+calcPackScore())/5)}%</div><div class="sub">Nivel global</div></div>
+    <div class="info-card"><div class="label">Documentos</div><div class="value">${docScore}%</div><div class="sub">Completados</div></div>
+    <div class="info-card"><div class="label">Lugares</div><div class="value">${wantPlaces+visitedPlaces}</div><div class="sub">${wantPlaces} quiero · ${visitedPlaces} visitados</div></div>
+    <div class="info-card"><div class="label">Equipaje</div><div class="value">${packScore}%</div><div class="sub">Empacado</div></div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════
+function renderDashboard(){
+  const c=state.country;
+  const overall=Math.round((calcDocScore()+calcFlightScore()+calcHotelScore()+calcBudgetScore()+calcPackScore())/5);
+  const bestFlight=state.flights?.length?[...state.flights].sort((a,b)=>calcFlightItemScore(b)-calcFlightItemScore(a))[0]:null;
+  const bestHotel=state.hotels?.length?[...state.hotels].sort((a,b)=>calcHotelItemScore(b)-calcHotelItemScore(a))[0]:null;
+  const b=state.budget||{};
+  const spent=Object.keys(b).filter(k=>k!=='total').reduce((acc,k)=>acc+(parseFloat(b[k])||0),0);
+  let countdown='';
+  if(state.depDate){const diff=new Date(state.depDate)-new Date();if(diff>0){const days=Math.floor(diff/86400000);countdown=`<div style="text-align:center;padding:1rem 0"><div style="font-size:4rem;color:var(--rose);line-height:1">${days}</div><div style="font-size:0.8rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.1em">días restantes</div></div>`;}}
+  const wantPlaces=Object.entries(state.places||{}).filter(([,v])=>v==='want').length;
+  document.getElementById('dashboard-grid').innerHTML=`
+  <div class="dash-card dash-hero">
+    <div style="display:flex;flex-wrap:wrap;align-items:flex-start;gap:2rem">
+      <div style="flex:1;min-width:200px">
+        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.4);margin-bottom:0.5rem">Tu próximo destino</div>
+        <div style="font-size:2.5rem;color:#fff;line-height:1.1">${c?c.flag+' '+c.name:'Elige un destino'}</div>
+        ${c?`<div style="color:rgba(255,255,255,0.55);font-size:0.88rem;margin-top:0.5rem">${c.lang} · ${c.currency.split('–')[0]} · ${c.tz}</div>`:''}
+        ${state.depDate&&state.retDate?`<div style="color:rgba(255,255,255,0.55);font-size:0.88rem;margin-top:0.3rem">📅 ${state.depDate} → ${state.retDate}</div>`:''}
+      </div>
+      ${countdown}
+    </div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">Nivel de preparación</div>
+    <div style="font-size:3rem;color:var(--lila4);line-height:1">${overall}%</div>
+    <div style="height:8px;background:var(--lila);border-radius:50px;margin:0.8rem 0;overflow:hidden"><div style="height:100%;width:${overall}%;background:linear-gradient(90deg,var(--rose2),var(--lila3));border-radius:50px"></div></div>
+    <div style="font-size:0.82rem;color:var(--txt3)">${overall<40?'¡Queda mucho por preparar!':overall<75?'Buen avance, sigue adelante':'¡Casi listo para volar! ✈'}</div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">Presupuesto</div>
+    <div style="font-size:1.8rem;color:var(--txt)">COP ${spent.toLocaleString('es-CO')}</div>
+    <div style="font-size:0.82rem;color:var(--txt3);margin:0.3rem 0">de ${(b.total||0).toLocaleString('es-CO')} presupuestados</div>
+    ${b.total>0?`<div style="height:6px;background:var(--border);border-radius:50px;margin-top:0.8rem;overflow:hidden"><div style="height:100%;width:${Math.min(100,Math.round(spent/(b.total||1)*100))}%;background:${spent>b.total?'var(--err)':spent>b.total*.85?'var(--warn)':'var(--ok)'};border-radius:50px"></div></div>`:''}
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">Mejor aerolínea</div>
+    <div style="font-size:1.3rem">${bestFlight?.airline||'—'}</div>
+    <div style="font-size:0.82rem;color:var(--txt3);margin-top:0.4rem">${bestFlight?`${bestFlight.price||'–'} · ${bestFlight.duration||'–'}`:'Agrega vuelos para comparar'}</div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">Mejor hospedaje</div>
+    <div style="font-size:1.3rem">${bestHotel?.name||'—'}</div>
+    <div style="font-size:0.82rem;color:var(--txt3);margin-top:0.4rem">${bestHotel?`COP ${parseFloat(bestHotel.ppn||0).toLocaleString('es-CO')}/noche`:'Agrega hospedajes para comparar'}</div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">Estado de documentos</div>
+    <div style="display:flex;align-items:baseline;gap:0.5rem"><div style="font-size:2rem">${calcDocScore()}%</div><div style="font-size:0.82rem;color:var(--txt3)">completados</div></div>
+    <div class="semaphore ${calcDocScore()===100?'sem-green':calcDocScore()<50?'sem-red':'sem-yellow'}" style="margin-top:0.8rem">${calcDocScore()===100?'🟢 Todo listo':calcDocScore()<50?'🔴 Acción requerida':'🟡 En proceso'}</div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">Equipaje</div>
+    <div style="font-size:2rem">${calcPackScore()}%</div>
+    <div style="font-size:0.82rem;color:var(--txt3);margin-top:0.3rem">${calcPackScore()===100?'¡Todo empacado!':calcPackScore()>50?'Buen avance':'Comienza a empacar'}</div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">Lugares turísticos</div>
+    <div style="font-size:2rem">${wantPlaces}</div>
+    <div style="font-size:0.82rem;color:var(--txt3);margin-top:0.3rem">lugares que quieres visitar</div>
+    <div style="margin-top:0.8rem"><button class="btn-secondary" onclick="showPage('places')" style="font-size:0.8rem;padding:0.4rem 1rem">Ver lugares →</button></div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+// CITY AUTOCOMPLETE
+// ══════════════════════════════════════════════
+function autocompleteCity(input,sugId){
+  const q=input.value.toLowerCase();
+  const sug=document.getElementById(sugId);
+  if(!q){sug.style.display='none';return;}
+  const matches=CITIES.filter(c=>c.toLowerCase().includes(q)).slice(0,6);
+  if(!matches.length){sug.style.display='none';return;}
+  sug.innerHTML=matches.map(c=>`<div class="country-option" style="color:var(--txt)" onclick="selectCity('${input.id}','${sugId}','${c}')">${c}</div>`).join('');
+  sug.style.display='block';
+  if(state.country?.cities){
+    const dest=state.country.cities.filter(c=>c.toLowerCase().includes(q));
+    if(dest.length){
+      sug.innerHTML=`<div style="padding:0.4rem 1rem;font-size:0.7rem;color:var(--txt3);text-transform:uppercase;letter-spacing:0.05em">Destino: ${state.country.name}</div>`+
+      dest.map(c=>`<div class="country-option" style="color:var(--txt)" onclick="selectCity('${input.id}','${sugId}','${c}')">${c}</div>`).join('')+sug.innerHTML;
+    }
+  }
+}
+
+function selectCity(inputId,sugId,city){
+  document.getElementById(inputId).value=city;
+  document.getElementById(sugId).style.display='none';
+  saveTrip();
+}
+
+// ══════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════
+function saveState(){localStorage.setItem('tp_state',JSON.stringify(state));}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ── On load: restore state ──
+window.addEventListener('load',()=>{
+  if(state.country){
+    document.getElementById('main-nav').style.display='block';
+    document.getElementById('nav-trip-label').textContent=state.country.flag+' '+state.country.name;
+    buildCoverPage(state.country);
+    if(window._stopPlane)window._stopPlane();
+    showPage('cover');
+    if(state.depDate)buildInfoCards();
+  }
+});
+</script>
+</body>
+</html>
