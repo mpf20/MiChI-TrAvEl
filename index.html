@@ -423,15 +423,16 @@ tbody tr:hover{background:var(--lila);background:rgba(232,224,248,0.4)}
   <div class="nav-inner">
     <div class="nav-logo">✈ Travel Planner</div>
     <div class="nav-items">
-      <button class="nav-btn" onclick="showPage('cover')">Destino</button>
-      <button class="nav-btn" onclick="showPage('docs')">Documentos</button>
-      <button class="nav-btn" onclick="showPage('flights')">Vuelos</button>
-      <button class="nav-btn" onclick="showPage('hotels')">Hospedaje</button>
-      <button class="nav-btn" onclick="showPage('budget')">Presupuesto</button>
-      <button class="nav-btn" onclick="showPage('places')">Lugares</button>
-      <button class="nav-btn" onclick="showPage('packing')">Equipaje</button>
-      <button class="nav-btn" onclick="showPage('reco')">Recomendaciones</button>
-      <button class="nav-btn" onclick="showPage('dashboard')">Dashboard</button>
+      <button class="nav-btn" data-page="cover" onclick="showPage('cover')">Destino</button>
+      <button class="nav-btn" data-page="docs" onclick="showPage('docs')">Documentos</button>
+      <button class="nav-btn" data-page="flights" onclick="showPage('flights')">Vuelos</button>
+      <button class="nav-btn" data-page="hotels" onclick="showPage('hotels')">Hospedaje</button>
+      <button class="nav-btn" data-page="budget" onclick="showPage('budget')">Presupuesto</button>
+      <button class="nav-btn" data-page="places" onclick="showPage('places')">Lugares</button>
+      <button class="nav-btn" data-page="packing" onclick="showPage('packing')">Equipaje</button>
+      <button class="nav-btn" data-page="reco" onclick="showPage('reco')">Recomendaciones</button>
+      <button class="nav-btn" data-page="dashboard" onclick="showPage('dashboard')">Dashboard</button>
+      <button class="nav-btn" data-page="home" onclick="changeDestination()" style="color:var(--rose4);border:1.5px solid var(--rose2);margin-left:8px">🌍 Cambiar destino</button>
     </div>
     <div class="nav-trip" id="nav-trip-label"></div>
   </div>
@@ -666,48 +667,45 @@ tbody tr:hover{background:var(--lila);background:rgba(232,224,248,0.4)}
 <script>
 // ══════════════════════════════════════════════
 // DATA & STATE
-// ══════════════════════════════════════════════
-// ── Image helper: returns a keyword-based Unsplash URL that always matches the destination ──
-function imgUrl(keywords,w,h){
-  return`https://source.unsplash.com/featured/${w}x${h}/?${encodeURIComponent(keywords)}`;
-}
+// ── Image helper: Pexels CDN — no API key, no referrer restrictions ──
+function px(id,w,h){return`https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=${w}&h=${h}&fit=crop`;}
 
 const COUNTRIES = [
   {name:'Argentina',flag:'🇦🇷',currency:'ARS – Peso argentino',lang:'Español',tz:'UTC-3',flight:'7-9h desde BOG',pax:'Visa libre 90d',climate:'Templado',temp:'15-28°C',rain:'35%',season:'Verano (dic-feb)',budget:'COP 6.000.000 – 12.000.000',
-   keys:['Buenos Aires,tango,argentina','Patagonia,argentina,mountain','Iguazu falls,argentina','Mendoza,vineyard,argentina','Buenos Aires,obelisco'],
+   imgs:[px(2901209,900,600),px(3876319,500,340),px(2678932,500,340),px(1025469,500,340),px(2662116,500,340)],
    cities:['Buenos Aires (EZE)','Córdoba (COR)','Mendoza (MDZ)','Bariloche (BRC)']},
   {name:'Brasil',flag:'🇧🇷',currency:'BRL – Real brasileño',lang:'Portugués',tz:'UTC-3',flight:'5-7h desde BOG',pax:'Pasaporte válido',climate:'Tropical',temp:'24-35°C',rain:'60%',season:'Verano húmedo',budget:'COP 5.500.000 – 10.000.000',
-   keys:['Rio de Janeiro,Brazil,sugarloaf','Christ the Redeemer,Rio,Brazil','Copacabana beach,Brazil','Amazon rainforest,Brazil','Carnaval,Brazil,samba'],
+   imgs:[px(351283,900,600),px(1808388,500,340),px(3540693,500,340),px(3597104,500,340),px(2868246,500,340)],
    cities:['Río de Janeiro (GIG)','São Paulo (GRU)','Florianópolis (FLN)','Salvador (SSA)','Manaos (MAO)']},
   {name:'México',flag:'🇲🇽',currency:'MXN – Peso mexicano',lang:'Español',tz:'UTC-6',flight:'4-5h desde BOG',pax:'Pasaporte válido',climate:'Variado',temp:'20-32°C',rain:'30%',season:'Temporada seca',budget:'COP 4.500.000 – 9.000.000',
-   keys:['Mexico City,Zocalo,mexico','Chichen Itza,ruins,mexico','Tulum,beach,mexico','Guadalajara,mexico','Mexican food,tacos,street'],
+   imgs:[px(3802664,900,600),px(2365450,500,340),px(4119143,500,340),px(1125850,500,340),px(3966545,500,340)],
    cities:['Ciudad de México (MEX)','Cancún (CUN)','Guadalajara (GDL)','Monterrey (MTY)','Los Cabos (SJD)']},
   {name:'España',flag:'🇪🇸',currency:'EUR – Euro',lang:'Español',tz:'UTC+1',flight:'10-12h desde BOG',pax:'Pasaporte + visa Schengen',climate:'Mediterráneo',temp:'18-28°C',rain:'20%',season:'Primavera / Otoño',budget:'COP 9.000.000 – 18.000.000',
-   keys:['Sagrada Familia,Barcelona,Spain','Madrid,Spain,plaza','Seville,Spain,cathedral','Alhambra,Granada,Spain','Spanish coast,beach,Mediterranean'],
+   imgs:[px(3757148,900,600),px(1388030,500,340),px(3779832,500,340),px(3840442,500,340),px(2225442,500,340)],
    cities:['Madrid (MAD)','Barcelona (BCN)','Málaga (AGP)','Sevilla (SVQ)','Valencia (VLC)']},
   {name:'Francia',flag:'🇫🇷',currency:'EUR – Euro',lang:'Francés',tz:'UTC+1',flight:'11-13h desde BOG',pax:'Pasaporte + visa Schengen',climate:'Oceánico',temp:'12-25°C',rain:'40%',season:'Primavera',budget:'COP 11.000.000 – 22.000.000',
-   keys:['Eiffel Tower,Paris,France','Paris,France,Louvre','French Riviera,Côte Azur','Mont Saint Michel,France','French countryside,lavender,Provence'],
+   imgs:[px(338515,900,600),px(532826,500,340),px(1308940,500,340),px(3214982,500,340),px(3581874,500,340)],
    cities:['París (CDG)','Niza (NCE)','Lyon (LYS)','Burdeos (BOD)']},
   {name:'Italia',flag:'🇮🇹',currency:'EUR – Euro',lang:'Italiano',tz:'UTC+1',flight:'12-14h desde BOG',pax:'Pasaporte + visa Schengen',climate:'Mediterráneo',temp:'16-30°C',rain:'25%',season:'Primavera',budget:'COP 10.000.000 – 20.000.000',
-   keys:['Colosseum,Rome,Italy','Venice,canals,Italy','Florence,Duomo,Italy','Amalfi Coast,Italy','Italian pizza,food,Italy'],
+   imgs:[px(2064827,900,600),px(1797161,500,340),px(2422497,500,340),px(3009807,500,340),px(1530259,500,340)],
    cities:['Roma (FCO)','Milán (MXP)','Venecia (VCE)','Florencia (FLR)','Nápoles (NAP)']},
   {name:'Estados Unidos',flag:'🇺🇸',currency:'USD – Dólar americano',lang:'Inglés',tz:'UTC-5 a UTC-8',flight:'5-8h desde BOG',pax:'Pasaporte + visa B1/B2',climate:'Variado',temp:'15-30°C',rain:'30%',season:'Verano',budget:'COP 8.000.000 – 18.000.000',
-   keys:['New York City,skyline,USA','Statue of Liberty,New York','Miami beach,Florida,USA','Grand Canyon,Arizona,USA','Las Vegas,Nevada,USA'],
+   imgs:[px(290386,900,600),px(1239162,500,340),px(1506787,500,340),px(417344,500,340),px(3828850,500,340)],
    cities:['Miami (MIA)','Nueva York (JFK)','Los Ángeles (LAX)','Orlando (MCO)','Las Vegas (LAS)']},
   {name:'Japón',flag:'🇯🇵',currency:'JPY – Yen japonés',lang:'Japonés',tz:'UTC+9',flight:'20-23h desde BOG',pax:'Pasaporte válido (visa libre)',climate:'Templado',temp:'12-26°C',rain:'45%',season:'Primavera / Otoño',budget:'COP 12.000.000 – 25.000.000',
-   keys:['Tokyo,Japan,shibuya','Mount Fuji,Japan,cherry blossom','Kyoto,Japan,temple','Osaka,Japan,castle','Japanese garden,Japan,lantern'],
+   imgs:[px(161401,900,600),px(402028,500,340),px(2187605,500,340),px(3408354,500,340),px(1440476,500,340)],
    cities:['Tokio (NRT)','Osaka (KIX)','Kioto','Hiroshima','Fukuoka (FUK)']},
   {name:'Perú',flag:'🇵🇪',currency:'PEN – Sol peruano',lang:'Español',tz:'UTC-5',flight:'2-3h desde BOG',pax:'Solo cédula colombiana',climate:'Variado',temp:'14-24°C',rain:'20%',season:'Seca (jun-oct)',budget:'COP 2.500.000 – 6.000.000',
-   keys:['Machu Picchu,Peru,inca','Lima,Peru,city','Cusco,Peru,inca ruins','Amazon,Peru,jungle','Titicaca lake,Peru,Bolivia'],
+   imgs:[px(259967,900,600),px(3483832,500,340),px(2356059,500,340),px(1580587,500,340),px(3639168,500,340)],
    cities:['Lima (LIM)','Cusco (CUZ)','Arequipa (AQP)','Iquitos (IQT)']},
   {name:'Chile',flag:'🇨🇱',currency:'CLP – Peso chileno',lang:'Español',tz:'UTC-4',flight:'3-4h desde BOG',pax:'Solo cédula colombiana',climate:'Mediterráneo/Desértico',temp:'14-26°C',rain:'15%',season:'Verano',budget:'COP 3.500.000 – 8.000.000',
-   keys:['Torres del Paine,Chile,Patagonia','Santiago,Chile,skyline','Atacama desert,Chile','Easter Island,moai,Chile','Chilean wine,vineyard,Chile'],
+   imgs:[px(3669980,900,600),px(1761280,500,340),px(4254106,500,340),px(2901988,500,340),px(3889843,500,340)],
    cities:['Santiago (SCL)','Punta Arenas (PUQ)','Antofagasta (ANF)','Concepción (CCP)']},
   {name:'Colombia',flag:'🇨🇴',currency:'COP – Peso colombiano',lang:'Español',tz:'UTC-5',flight:'Vuelo doméstico',pax:'Cédula colombiana',climate:'Tropical variado',temp:'18-30°C',rain:'50%',season:'Según región',budget:'COP 1.000.000 – 4.000.000',
-   keys:['Cartagena,Colombia,colonial','Medellín,Colombia,city','Bogotá,Colombia,monserrate','Coffee region,Colombia,coffee','San Andres,Colombia,beach'],
+   imgs:[px(3737099,900,600),px(2387793,500,340),px(3609840,500,340),px(4358913,500,340),px(3893813,500,340)],
    cities:['Bogotá (BOG)','Medellín (MDE)','Cali (CLO)','Cartagena (CTG)','Barranquilla (BAQ)','Pereira (PEI)','Bucaramanga (BGA)']},
   {name:'Tailandia',flag:'🇹🇭',currency:'THB – Baht tailandés',lang:'Tailandés',tz:'UTC+7',flight:'22-25h desde BOG',pax:'Pasaporte + visa libre 30d',climate:'Tropical húmedo',temp:'26-35°C',rain:'55%',season:'Seca (nov-abr)',budget:'COP 8.000.000 – 16.000.000',
-   keys:['Bangkok,Thailand,temple','Phuket,Thailand,beach','Chiang Mai,Thailand,temple','Thailand,floating market','Thai food,Thailand,street food'],
+   imgs:[px(1031698,900,600),px(3150215,500,340),px(2477164,500,340),px(2356045,500,340),px(3601430,500,340)],
    cities:['Bangkok (BKK)','Phuket (HKT)','Chiang Mai (CNX)','Krabi (KBV)']},
 ];
 
@@ -730,110 +728,111 @@ const DOC_REQUIREMENTS = {
 
 const PLACES_DATA = {
   Argentina:[
-    {name:'Cataratas del Iguazú',cat:'Naturaleza',emoji:'🌊',time:'1 día',cost:'COP 80.000',dist:'Vuelo interno',key:'Iguazu Falls,waterfall,Argentina'},
-    {name:'Buenos Aires – La Boca',cat:'Cultura',emoji:'🎨',time:'3 horas',cost:'Gratis',dist:'En la ciudad',key:'La Boca,Buenos Aires,colorful'},
-    {name:'Teatro Colón',cat:'Cultura',emoji:'🎭',time:'2 horas',cost:'COP 40.000',dist:'Centro BA',key:'Teatro Colon,Buenos Aires,opera'},
-    {name:'Mendoza – Tour de vinos',cat:'Gastronomía',emoji:'🍷',time:'Día completo',cost:'COP 150.000',dist:'Vuelo interno',key:'Mendoza,vineyard,Argentina,wine'},
-    {name:'Bariloche – Cerro Catedral',cat:'Naturaleza',emoji:'🏔',time:'1-2 días',cost:'COP 200.000',dist:'Vuelo interno',key:'Bariloche,Patagonia,mountain,snow'},
-    {name:'Palermo Soho',cat:'Compras',emoji:'🛍',time:'4 horas',cost:'Variable',dist:'BA centro',key:'Palermo,Buenos Aires,street,fashion'},
+    {name:'Cataratas del Iguazú',cat:'Naturaleza',emoji:'🌊',time:'1 día',cost:'COP 80.000',dist:'Vuelo interno',img:px(2739568,500,320)},
+    {name:'Buenos Aires – La Boca',cat:'Cultura',emoji:'🎨',time:'3 horas',cost:'Gratis',dist:'En la ciudad',img:px(2662116,500,320)},
+    {name:'Mendoza – Vinos',cat:'Gastronomía',emoji:'🍷',time:'Día completo',cost:'COP 150.000',dist:'Vuelo interno',img:px(1125850,500,320)},
+    {name:'Patagonia – Bariloche',cat:'Naturaleza',emoji:'🏔',time:'1-2 días',cost:'COP 200.000',dist:'Vuelo interno',img:px(3669980,500,320)},
+    {name:'Buenos Aires – Teatro Colón',cat:'Cultura',emoji:'🎭',time:'2 horas',cost:'COP 40.000',dist:'Centro BA',img:px(3876319,500,320)},
+    {name:'Palermo Soho',cat:'Compras',emoji:'🛍',time:'4 horas',cost:'Variable',dist:'BA centro',img:px(2901209,500,320)},
   ],
   Brasil:[
-    {name:'Cristo Redentor',cat:'Imperdibles',emoji:'✝️',time:'3 horas',cost:'COP 70.000',dist:'Rio centro',key:'Christ the Redeemer,Rio de Janeiro,Brazil'},
-    {name:'Copacabana Beach',cat:'Naturaleza',emoji:'🏖',time:'Día completo',cost:'Gratis',dist:'Rio Sur',key:'Copacabana beach,Rio de Janeiro,Brazil'},
-    {name:'Amazonia – Manaus',cat:'Naturaleza',emoji:'🌿',time:'3-5 días',cost:'COP 400.000',dist:'Vuelo interno',key:'Amazon river,rainforest,Brazil'},
-    {name:'Lapa – Carnaval',cat:'Cultura',emoji:'🎉',time:'Noche',cost:'COP 50.000',dist:'Rio centro',key:'Carnaval,Rio de Janeiro,samba'},
-    {name:'Feijoada carioca',cat:'Gastronomía',emoji:'🍲',time:'2 horas',cost:'COP 35.000',dist:'Varios',key:'Brazilian food,feijoada,Rio'},
-    {name:'Jardim Botânico',cat:'Fotografía',emoji:'📸',time:'2 horas',cost:'COP 20.000',dist:'Rio',key:'Jardim Botanico,Rio de Janeiro,garden'},
+    {name:'Cristo Redentor',cat:'Imperdibles',emoji:'✝️',time:'3 horas',cost:'COP 70.000',dist:'Rio centro',img:px(351283,500,320)},
+    {name:'Copacabana Beach',cat:'Naturaleza',emoji:'🏖',time:'Día completo',cost:'Gratis',dist:'Rio Sur',img:px(1808388,500,320)},
+    {name:'Amazonia – Manaus',cat:'Naturaleza',emoji:'🌿',time:'3-5 días',cost:'COP 400.000',dist:'Vuelo interno',img:px(2868246,500,320)},
+    {name:'Lapa – Carnaval',cat:'Cultura',emoji:'🎉',time:'Noche',cost:'COP 50.000',dist:'Rio centro',img:px(3540693,500,320)},
+    {name:'Gastronomía brasileña',cat:'Gastronomía',emoji:'🍲',time:'2 horas',cost:'COP 35.000',dist:'Varios',img:px(3597104,500,320)},
+    {name:'Jardim Botânico',cat:'Fotografía',emoji:'📸',time:'2 horas',cost:'COP 20.000',dist:'Rio',img:px(3604273,500,320)},
   ],
   México:[
-    {name:'Chichén Itzá',cat:'Imperdibles',emoji:'🏛',time:'Día completo',cost:'COP 80.000',dist:'Vuelo interno',key:'Chichen Itza,Mayan ruins,Mexico'},
-    {name:'Tulum',cat:'Naturaleza',emoji:'🏖',time:'1 día',cost:'COP 30.000',dist:'2h de Cancún',key:'Tulum,beach,ruins,Mexico'},
-    {name:'Ciudad de México – Zócalo',cat:'Cultura',emoji:'🎨',time:'4 horas',cost:'Gratis',dist:'Centro',key:'Zocalo,Mexico City,cathedral'},
-    {name:'Gastronomía mexicana',cat:'Gastronomía',emoji:'🌮',time:'3 horas',cost:'COP 40.000',dist:'Varios',key:'Mexican food,tacos,street food'},
-    {name:'Cenotes de Yucatán',cat:'Naturaleza',emoji:'💧',time:'Día completo',cost:'COP 50.000',dist:'Cancún área',key:'cenote,Yucatan,Mexico,swimming'},
-    {name:'Frida Kahlo Museum',cat:'Cultura',emoji:'🖼',time:'2 horas',cost:'COP 35.000',dist:'Coyoacán',key:'Frida Kahlo museum,Mexico City'},
+    {name:'Chichén Itzá',cat:'Imperdibles',emoji:'🏛',time:'Día completo',cost:'COP 80.000',dist:'Vuelo interno',img:px(2365450,500,320)},
+    {name:'Tulum',cat:'Naturaleza',emoji:'🏖',time:'1 día',cost:'COP 30.000',dist:'2h de Cancún',img:px(3966545,500,320)},
+    {name:'Ciudad de México – Zócalo',cat:'Cultura',emoji:'🎨',time:'4 horas',cost:'Gratis',dist:'Centro',img:px(3802664,500,320)},
+    {name:'Gastronomía mexicana',cat:'Gastronomía',emoji:'🌮',time:'3 horas',cost:'COP 40.000',dist:'Varios',img:px(4119143,500,320)},
+    {name:'Cenotes de Yucatán',cat:'Naturaleza',emoji:'💧',time:'Día completo',cost:'COP 50.000',dist:'Cancún área',img:px(3601430,500,320)},
+    {name:'Mercado de Artesanías',cat:'Compras',emoji:'🛍',time:'2 horas',cost:'Variable',dist:'Varios',img:px(1386604,500,320)},
   ],
   España:[
-    {name:'Sagrada Família',cat:'Imperdibles',emoji:'⛪',time:'3 horas',cost:'COP 80.000',dist:'Barcelona',key:'Sagrada Familia,Barcelona,Gaudi'},
-    {name:'Alhambra de Granada',cat:'Cultura',emoji:'🕌',time:'4 horas',cost:'COP 70.000',dist:'Granada',key:'Alhambra,Granada,Spain,palace'},
-    {name:'Playa de la Concha',cat:'Naturaleza',emoji:'🏖',time:'Día completo',cost:'Gratis',dist:'San Sebastián',key:'San Sebastian beach,Spain,coast'},
-    {name:'Mercado La Boqueria',cat:'Gastronomía',emoji:'🥘',time:'2 horas',cost:'COP 40.000',dist:'Barcelona',key:'Boqueria market,Barcelona,food'},
-    {name:'Museo del Prado',cat:'Cultura',emoji:'🎨',time:'3 horas',cost:'COP 50.000',dist:'Madrid',key:'Prado Museum,Madrid,Spain,art'},
-    {name:'Flamenco show',cat:'Fotografía',emoji:'💃',time:'2 horas',cost:'COP 90.000',dist:'Sevilla',key:'flamenco,Seville,Spain,dance'},
+    {name:'Sagrada Família',cat:'Imperdibles',emoji:'⛪',time:'3 horas',cost:'COP 80.000',dist:'Barcelona',img:px(1388030,500,320)},
+    {name:'Alhambra de Granada',cat:'Cultura',emoji:'🕌',time:'4 horas',cost:'COP 70.000',dist:'Granada',img:px(3779832,500,320)},
+    {name:'Playa Mediterránea',cat:'Naturaleza',emoji:'🏖',time:'Día completo',cost:'Gratis',dist:'Costa',img:px(3840442,500,320)},
+    {name:'Tapas y gastronomía',cat:'Gastronomía',emoji:'🥘',time:'2 horas',cost:'COP 40.000',dist:'Varios',img:px(2225442,500,320)},
+    {name:'Madrid – Gran Vía',cat:'Cultura',emoji:'🎨',time:'3 horas',cost:'COP 50.000',dist:'Madrid',img:px(3757148,500,320)},
+    {name:'Flamenco show',cat:'Fotografía',emoji:'💃',time:'2 horas',cost:'COP 90.000',dist:'Sevilla',img:px(3581874,500,320)},
   ],
   Francia:[
-    {name:'Torre Eiffel',cat:'Imperdibles',emoji:'🗼',time:'3 horas',cost:'COP 80.000',dist:'París centro',key:'Eiffel Tower,Paris,night'},
-    {name:'Louvre',cat:'Cultura',emoji:'🎨',time:'4 horas',cost:'COP 60.000',dist:'París centro',key:'Louvre museum,Paris,France'},
-    {name:'Costa Azul',cat:'Naturaleza',emoji:'🌊',time:'2-3 días',cost:'COP 150.000',dist:'Niza',key:'French Riviera,Nice,Mediterranean'},
-    {name:'Mont Saint-Michel',cat:'Imperdibles',emoji:'🏰',time:'1 día',cost:'COP 40.000',dist:'Normandía',key:'Mont Saint Michel,France,island'},
-    {name:'Gastronomía francesa',cat:'Gastronomía',emoji:'🥐',time:'2 horas',cost:'COP 80.000',dist:'Varios',key:'French cuisine,croissant,bistro,Paris'},
-    {name:'Provence & Lavanda',cat:'Fotografía',emoji:'📸',time:'1-2 días',cost:'COP 50.000',dist:'Sur de Francia',key:'Provence,lavender fields,France'},
+    {name:'Torre Eiffel',cat:'Imperdibles',emoji:'🗼',time:'3 horas',cost:'COP 80.000',dist:'París centro',img:px(338515,500,320)},
+    {name:'Louvre',cat:'Cultura',emoji:'🎨',time:'4 horas',cost:'COP 60.000',dist:'París centro',img:px(532826,500,320)},
+    {name:'Costa Azul',cat:'Naturaleza',emoji:'🌊',time:'2-3 días',cost:'COP 150.000',dist:'Niza',img:px(1308940,500,320)},
+    {name:'Mont Saint-Michel',cat:'Imperdibles',emoji:'🏰',time:'1 día',cost:'COP 40.000',dist:'Normandía',img:px(3214982,500,320)},
+    {name:'Gastronomía francesa',cat:'Gastronomía',emoji:'🥐',time:'2 horas',cost:'COP 80.000',dist:'Varios',img:px(1640777,500,320)},
+    {name:'Provence y Lavanda',cat:'Fotografía',emoji:'📸',time:'1-2 días',cost:'COP 50.000',dist:'Sur de Francia',img:px(1166209,500,320)},
   ],
   Italia:[
-    {name:'Coliseo Romano',cat:'Imperdibles',emoji:'🏟',time:'3 horas',cost:'COP 65.000',dist:'Roma centro',key:'Colosseum,Rome,Italy'},
-    {name:'Canales de Venecia',cat:'Imperdibles',emoji:'🛶',time:'Día completo',cost:'COP 40.000',dist:'Venecia',key:'Venice canals,gondola,Italy'},
-    {name:'Duomo de Florencia',cat:'Cultura',emoji:'⛪',time:'3 horas',cost:'COP 55.000',dist:'Florencia',key:'Florence Duomo,Italy,cathedral'},
-    {name:'Costa Amalfitana',cat:'Naturaleza',emoji:'🌊',time:'1-2 días',cost:'COP 120.000',dist:'Nápoles',key:'Amalfi Coast,Italy,Mediterranean'},
-    {name:'Pizza napolitana',cat:'Gastronomía',emoji:'🍕',time:'2 horas',cost:'COP 30.000',dist:'Nápoles',key:'Neapolitan pizza,Naples,Italy,food'},
-    {name:'Galería Uffizi',cat:'Cultura',emoji:'🖼',time:'3 horas',cost:'COP 50.000',dist:'Florencia',key:'Uffizi gallery,Florence,art,Italy'},
+    {name:'Coliseo Romano',cat:'Imperdibles',emoji:'🏟',time:'3 horas',cost:'COP 65.000',dist:'Roma centro',img:px(2064827,500,320)},
+    {name:'Canales de Venecia',cat:'Imperdibles',emoji:'🛶',time:'Día completo',cost:'COP 40.000',dist:'Venecia',img:px(1797161,500,320)},
+    {name:'Duomo de Florencia',cat:'Cultura',emoji:'⛪',time:'3 horas',cost:'COP 55.000',dist:'Florencia',img:px(2422497,500,320)},
+    {name:'Costa Amalfitana',cat:'Naturaleza',emoji:'🌊',time:'1-2 días',cost:'COP 120.000',dist:'Nápoles',img:px(1530259,500,320)},
+    {name:'Pizza napolitana',cat:'Gastronomía',emoji:'🍕',time:'2 horas',cost:'COP 30.000',dist:'Nápoles',img:px(315755,500,320)},
+    {name:'Galería Uffizi',cat:'Cultura',emoji:'🖼',time:'3 horas',cost:'COP 50.000',dist:'Florencia',img:px(3009807,500,320)},
   ],
   'Estados Unidos':[
-    {name:'Times Square',cat:'Imperdibles',emoji:'🌆',time:'2 horas',cost:'Gratis',dist:'Manhattan',key:'Times Square,New York,night'},
-    {name:'Grand Canyon',cat:'Naturaleza',emoji:'🏜',time:'1-2 días',cost:'COP 60.000',dist:'Arizona',key:'Grand Canyon,Arizona,USA'},
-    {name:'Miami South Beach',cat:'Naturaleza',emoji:'🏖',time:'Día completo',cost:'Gratis',dist:'Miami',key:'South Beach,Miami,Florida'},
-    {name:'Estatua de la Libertad',cat:'Imperdibles',emoji:'🗽',time:'3 horas',cost:'COP 55.000',dist:'New York',key:'Statue of Liberty,New York,harbor'},
-    {name:'Hollywood Boulevard',cat:'Fotografía',emoji:'📸',time:'2 horas',cost:'Gratis',dist:'Los Ángeles',key:'Hollywood Boulevard,Los Angeles,stars'},
-    {name:'Chicago Deep Dish',cat:'Gastronomía',emoji:'🍕',time:'2 horas',cost:'COP 45.000',dist:'Chicago',key:'Chicago food,pizza,restaurant,USA'},
+    {name:'Times Square',cat:'Imperdibles',emoji:'🌆',time:'2 horas',cost:'Gratis',dist:'Manhattan',img:px(290386,500,320)},
+    {name:'Grand Canyon',cat:'Naturaleza',emoji:'🏜',time:'1-2 días',cost:'COP 60.000',dist:'Arizona',img:px(417344,500,320)},
+    {name:'Miami South Beach',cat:'Naturaleza',emoji:'🏖',time:'Día completo',cost:'Gratis',dist:'Miami',img:px(1506787,500,320)},
+    {name:'Estatua de la Libertad',cat:'Imperdibles',emoji:'🗽',time:'3 horas',cost:'COP 55.000',dist:'New York',img:px(1239162,500,320)},
+    {name:'Hollywood',cat:'Fotografía',emoji:'📸',time:'2 horas',cost:'Gratis',dist:'Los Ángeles',img:px(3828850,500,320)},
+    {name:'Gastronomía NY',cat:'Gastronomía',emoji:'🥩',time:'2 horas',cost:'COP 80.000',dist:'New York',img:px(1199957,500,320)},
   ],
   Japón:[
-    {name:'Monte Fuji',cat:'Imperdibles',emoji:'🗻',time:'Día completo',cost:'COP 50.000',dist:'2h de Tokio',key:'Mount Fuji,Japan,cherry blossom'},
-    {name:'Shibuya Crossing',cat:'Fotografía',emoji:'📸',time:'2 horas',cost:'Gratis',dist:'Tokio',key:'Shibuya crossing,Tokyo,Japan,night'},
-    {name:'Templo Kinkaku-ji',cat:'Cultura',emoji:'⛩',time:'2 horas',cost:'COP 30.000',dist:'Kioto',key:'Kinkakuji,golden temple,Kyoto,Japan'},
-    {name:'Gastronomía japonesa',cat:'Gastronomía',emoji:'🍣',time:'3 horas',cost:'COP 60.000',dist:'Varios',key:'Japanese food,sushi,ramen,Japan'},
-    {name:'Bosque de bambú Arashiyama',cat:'Naturaleza',emoji:'🌿',time:'2 horas',cost:'Gratis',dist:'Kioto',key:'Arashiyama bamboo forest,Kyoto,Japan'},
-    {name:'Akihabara – Tech & Anime',cat:'Compras',emoji:'🛍',time:'4 horas',cost:'Variable',dist:'Tokio',key:'Akihabara,Tokyo,electronics,anime'},
+    {name:'Monte Fuji',cat:'Imperdibles',emoji:'🗻',time:'Día completo',cost:'COP 50.000',dist:'2h de Tokio',img:px(161401,500,320)},
+    {name:'Shibuya Crossing',cat:'Fotografía',emoji:'📸',time:'2 horas',cost:'Gratis',dist:'Tokio',img:px(3408354,500,320)},
+    {name:'Templo Kinkaku-ji',cat:'Cultura',emoji:'⛩',time:'2 horas',cost:'COP 30.000',dist:'Kioto',img:px(2187605,500,320)},
+    {name:'Gastronomía japonesa',cat:'Gastronomía',emoji:'🍣',time:'3 horas',cost:'COP 60.000',dist:'Varios',img:px(1440476,500,320)},
+    {name:'Bambú de Arashiyama',cat:'Naturaleza',emoji:'🌿',time:'2 horas',cost:'Gratis',dist:'Kioto',img:px(402028,500,320)},
+    {name:'Akihabara',cat:'Compras',emoji:'🛍',time:'4 horas',cost:'Variable',dist:'Tokio',img:px(2506923,500,320)},
   ],
   Perú:[
-    {name:'Machu Picchu',cat:'Imperdibles',emoji:'🏔',time:'Día completo',cost:'COP 180.000',dist:'Cusco',key:'Machu Picchu,Peru,Inca,ruins'},
-    {name:'Lima gastronómica',cat:'Gastronomía',emoji:'🍽',time:'3 horas',cost:'COP 60.000',dist:'Lima',key:'Lima Peru food,ceviche,restaurant'},
-    {name:'Lago Titicaca',cat:'Naturaleza',emoji:'🌊',time:'1-2 días',cost:'COP 80.000',dist:'Puno',key:'Lake Titicaca,Peru,Bolivia,island'},
-    {name:'Valle Sagrado',cat:'Naturaleza',emoji:'🌄',time:'1 día',cost:'COP 70.000',dist:'Cusco',key:'Sacred Valley,Cusco,Peru,Inca'},
-    {name:'Líneas de Nazca',cat:'Imperdibles',emoji:'✈️',time:'4 horas',cost:'COP 200.000',dist:'Ica',key:'Nazca Lines,Peru,aerial,desert'},
-    {name:'Barrio de Barranco',cat:'Fotografía',emoji:'📸',time:'3 horas',cost:'Gratis',dist:'Lima',key:'Barranco,Lima,Peru,street art'},
+    {name:'Machu Picchu',cat:'Imperdibles',emoji:'🏔',time:'Día completo',cost:'COP 180.000',dist:'Cusco',img:px(259967,500,320)},
+    {name:'Lima gastronómica',cat:'Gastronomía',emoji:'🍽',time:'3 horas',cost:'COP 60.000',dist:'Lima',img:px(1640777,500,320)},
+    {name:'Lago Titicaca',cat:'Naturaleza',emoji:'🌊',time:'1-2 días',cost:'COP 80.000',dist:'Puno',img:px(1580587,500,320)},
+    {name:'Valle Sagrado',cat:'Naturaleza',emoji:'🌄',time:'1 día',cost:'COP 70.000',dist:'Cusco',img:px(3639168,500,320)},
+    {name:'Líneas de Nazca',cat:'Imperdibles',emoji:'✈️',time:'4 horas',cost:'COP 200.000',dist:'Ica',img:px(3483832,500,320)},
+    {name:'Barranco – Lima',cat:'Fotografía',emoji:'📸',time:'3 horas',cost:'Gratis',dist:'Lima',img:px(2356059,500,320)},
   ],
   Chile:[
-    {name:'Torres del Paine',cat:'Naturaleza',emoji:'🏔',time:'3-5 días',cost:'COP 120.000',dist:'Patagonia',key:'Torres del Paine,Chile,Patagonia'},
-    {name:'Desierto de Atacama',cat:'Naturaleza',emoji:'🌵',time:'2-3 días',cost:'COP 100.000',dist:'Vuelo',key:'Atacama desert,Chile,salt flats'},
-    {name:'Isla de Pascua',cat:'Imperdibles',emoji:'🗿',time:'3-4 días',cost:'COP 250.000',dist:'Vuelo',key:'Easter Island,moai,Chile'},
-    {name:'Viña del Mar',cat:'Naturaleza',emoji:'🏖',time:'1 día',cost:'Gratis',dist:'Valparaíso',key:'Vina del Mar,Chile,beach,coast'},
-    {name:'Valparaíso',cat:'Fotografía',emoji:'📸',time:'1 día',cost:'Gratis',dist:'1h de Santiago',key:'Valparaiso,Chile,colorful,street art'},
-    {name:'Ruta del Vino',cat:'Gastronomía',emoji:'🍷',time:'Día completo',cost:'COP 90.000',dist:'Colchagua',key:'Chilean wine,vineyard,Chile,Colchagua'},
+    {name:'Torres del Paine',cat:'Naturaleza',emoji:'🏔',time:'3-5 días',cost:'COP 120.000',dist:'Patagonia',img:px(3669980,500,320)},
+    {name:'Desierto de Atacama',cat:'Naturaleza',emoji:'🌵',time:'2-3 días',cost:'COP 100.000',dist:'Vuelo',img:px(1761280,500,320)},
+    {name:'Isla de Pascua',cat:'Imperdibles',emoji:'🗿',time:'3-4 días',cost:'COP 250.000',dist:'Vuelo',img:px(4254106,500,320)},
+    {name:'Valparaíso',cat:'Fotografía',emoji:'📸',time:'1 día',cost:'Gratis',dist:'1h de Santiago',img:px(2901988,500,320)},
+    {name:'Ruta del Vino',cat:'Gastronomía',emoji:'🍷',time:'Día completo',cost:'COP 90.000',dist:'Colchagua',img:px(3889843,500,320)},
+    {name:'Santiago Centro',cat:'Imperdibles',emoji:'🌆',time:'4 horas',cost:'Gratis',dist:'Santiago',img:px(3709851,500,320)},
   ],
   Colombia:[
-    {name:'Ciudad Amurallada de Cartagena',cat:'Imperdibles',emoji:'🏰',time:'Día completo',cost:'Gratis',dist:'Cartagena',key:'Cartagena Colombia,walled city,colonial'},
-    {name:'Medellín – El Poblado',cat:'Fotografía',emoji:'📸',time:'4 horas',cost:'Gratis',dist:'Medellín',key:'Medellin,Colombia,El Poblado,city'},
-    {name:'Café colombiano',cat:'Gastronomía',emoji:'☕',time:'2 horas',cost:'COP 20.000',dist:'Eje Cafetero',key:'Colombian coffee,plantation,Eje Cafetero'},
-    {name:'Parque Tayrona',cat:'Naturaleza',emoji:'🌿',time:'2-3 días',cost:'COP 50.000',dist:'Santa Marta',key:'Tayrona National Park,Colombia,beach,jungle'},
-    {name:'Rosario Islands',cat:'Naturaleza',emoji:'🏝',time:'1 día',cost:'COP 80.000',dist:'Cartagena',key:'Rosario Islands,Colombia,coral reef'},
-    {name:'Monserrate – Bogotá',cat:'Imperdibles',emoji:'⛰',time:'3 horas',cost:'COP 25.000',dist:'Bogotá',key:'Monserrate,Bogota,Colombia,mountain'},
+    {name:'Ciudad Amurallada de Cartagena',cat:'Imperdibles',emoji:'🏰',time:'Día completo',cost:'Gratis',dist:'Cartagena',img:px(3737099,500,320)},
+    {name:'Medellín – El Poblado',cat:'Fotografía',emoji:'📸',time:'4 horas',cost:'Gratis',dist:'Medellín',img:px(2387793,500,320)},
+    {name:'Café colombiano',cat:'Gastronomía',emoji:'☕',time:'2 horas',cost:'COP 20.000',dist:'Eje Cafetero',img:px(894695,500,320)},
+    {name:'Parque Tayrona',cat:'Naturaleza',emoji:'🌿',time:'2-3 días',cost:'COP 50.000',dist:'Santa Marta',img:px(3609840,500,320)},
+    {name:'Islas del Rosario',cat:'Naturaleza',emoji:'🏝',time:'1 día',cost:'COP 80.000',dist:'Cartagena',img:px(1591373,500,320)},
+    {name:'Monserrate – Bogotá',cat:'Imperdibles',emoji:'⛰',time:'3 horas',cost:'COP 25.000',dist:'Bogotá',img:px(4358913,500,320)},
   ],
   Tailandia:[
-    {name:'Gran Palacio de Bangkok',cat:'Imperdibles',emoji:'🏯',time:'3 horas',cost:'COP 80.000',dist:'Bangkok',key:'Grand Palace,Bangkok,Thailand,temple'},
-    {name:'Playas de Phuket',cat:'Naturaleza',emoji:'🏖',time:'Día completo',cost:'Gratis',dist:'Phuket',key:'Phuket beach,Thailand,turquoise'},
-    {name:'Templos de Chiang Mai',cat:'Cultura',emoji:'⛩',time:'4 horas',cost:'COP 20.000',dist:'Chiang Mai',key:'Chiang Mai temple,Thailand,lantern'},
-    {name:'Street food Bangkok',cat:'Gastronomía',emoji:'🍜',time:'3 horas',cost:'COP 25.000',dist:'Bangkok',key:'Thai street food,Bangkok,noodles'},
-    {name:'Mercado Flotante',cat:'Fotografía',emoji:'📸',time:'3 horas',cost:'COP 30.000',dist:'Bangkok área',key:'floating market,Thailand,Bangkok'},
-    {name:'Islas Phi Phi',cat:'Naturaleza',emoji:'🌊',time:'1-2 días',cost:'COP 120.000',dist:'Krabi/Phuket',key:'Phi Phi Islands,Thailand,beach,limestone'},
+    {name:'Gran Palacio de Bangkok',cat:'Imperdibles',emoji:'🏯',time:'3 horas',cost:'COP 80.000',dist:'Bangkok',img:px(1031698,500,320)},
+    {name:'Playas de Phuket',cat:'Naturaleza',emoji:'🏖',time:'Día completo',cost:'Gratis',dist:'Phuket',img:px(3150215,500,320)},
+    {name:'Templos de Chiang Mai',cat:'Cultura',emoji:'⛩',time:'4 horas',cost:'COP 20.000',dist:'Chiang Mai',img:px(2477164,500,320)},
+    {name:'Street food Bangkok',cat:'Gastronomía',emoji:'🍜',time:'3 horas',cost:'COP 25.000',dist:'Bangkok',img:px(2356045,500,320)},
+    {name:'Mercado Flotante',cat:'Fotografía',emoji:'📸',time:'3 horas',cost:'COP 30.000',dist:'Bangkok área',img:px(3601430,500,320)},
+    {name:'Islas Phi Phi',cat:'Naturaleza',emoji:'🌊',time:'1-2 días',cost:'COP 120.000',dist:'Krabi/Phuket',img:px(1320684,500,320)},
   ],
   default:[
-    {name:'Centro histórico',cat:'Imperdibles',emoji:'🏛',time:'4 horas',cost:'Gratis',dist:'0 km',key:'historic city center,old town,architecture'},
-    {name:'Mercado local',cat:'Gastronomía',emoji:'🥘',time:'2 horas',cost:'COP 30.000',dist:'1-3 km',key:'local market,street food,fresh produce'},
-    {name:'Museo nacional',cat:'Cultura',emoji:'🎨',time:'3 horas',cost:'COP 20.000',dist:'2 km',key:'national museum,art gallery,culture'},
-    {name:'Parque natural',cat:'Naturaleza',emoji:'🌿',time:'Día completo',cost:'COP 40.000',dist:'20 km',key:'national park,nature,landscape,green'},
-    {name:'Barrio gastronómico',cat:'Gastronomía',emoji:'🍽',time:'3 horas',cost:'COP 80.000',dist:'3 km',key:'restaurant,gourmet food,dining'},
-    {name:'Mirador panorámico',cat:'Fotografía',emoji:'📸',time:'2 horas',cost:'COP 15.000',dist:'5 km',key:'city viewpoint,panorama,landscape'},
+    {name:'Centro histórico',cat:'Imperdibles',emoji:'🏛',time:'4 horas',cost:'Gratis',dist:'0 km',img:px(1388030,500,320)},
+    {name:'Mercado local',cat:'Gastronomía',emoji:'🥘',time:'2 horas',cost:'COP 30.000',dist:'1-3 km',img:px(1640777,500,320)},
+    {name:'Museo nacional',cat:'Cultura',emoji:'🎨',time:'3 horas',cost:'COP 20.000',dist:'2 km',img:px(3009807,500,320)},
+    {name:'Parque natural',cat:'Naturaleza',emoji:'🌿',time:'Día completo',cost:'COP 40.000',dist:'20 km',img:px(2868246,500,320)},
+    {name:'Barrio gastronómico',cat:'Gastronomía',emoji:'🍽',time:'3 horas',cost:'COP 80.000',dist:'3 km',img:px(1199957,500,320)},
+    {name:'Mirador panorámico',cat:'Fotografía',emoji:'📸',time:'2 horas',cost:'COP 15.000',dist:'5 km',img:px(417344,500,320)},
   ]
 };
+
 
 const PACKING_LISTS = {
   budget:{
@@ -945,12 +944,15 @@ function saveTrip(){
   }
   animatePlane();
 
-  // Stop plane animation when leaving home page
+  // Stop plane animation when leaving home page (don't hide permanently)
   window._stopPlane=function(){
     if(frameId)cancelAnimationFrame(frameId);
     frameId=null;
-    const pg=document.getElementById('page-home');
-    if(pg)pg.style.display='none';
+  };
+  // Restart plane when going back to home
+  window._startPlane=function(){
+    if(frameId)return;
+    animatePlane();
   };
 })();
 
@@ -960,8 +962,9 @@ function saveTrip(){
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.remove('active');if(b.textContent.toLowerCase().includes(id.substring(0,4)))b.classList.add('active')});
+  document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.remove('active');if(b.getAttribute('data-page')===id)b.classList.add('active')});
   window.scrollTo(0,0);
+  if(id==='home'){if(window._startPlane)window._startPlane();return;}
   if(id==='docs')renderDocs();
   if(id==='flights')renderFlights();
   if(id==='hotels')renderHotels();
@@ -1005,14 +1008,26 @@ function selectCountry(name){
   const c=COUNTRIES.find(x=>x.name===name);
   if(!c)return;
   state.country=c;
+  // Reset destination-specific state when changing country
+  state.docs={};state.places={};state.packing={};
   localStorage.setItem('tp_state',JSON.stringify(state));
   document.getElementById('country-dropdown').style.display='none';
   document.getElementById('main-nav').style.display='block';
   document.getElementById('nav-trip-label').textContent=c.flag+' '+c.name;
-  // Stop plane animation and hide home
   if(window._stopPlane)window._stopPlane();
   buildCoverPage(c);
   showPage('cover');
+}
+
+function changeDestination(){
+  // Show home page and restart animation
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-home').classList.add('active');
+  document.getElementById('country-input').value='';
+  document.getElementById('country-dropdown').style.display='none';
+  document.getElementById('country-input').focus();
+  if(window._startPlane)window._startPlane();
+  window.scrollTo(0,0);
 }
 
 // ══════════════════════════════════════════════
@@ -1022,17 +1037,9 @@ function buildCoverPage(c){
   document.getElementById('cover-country-name').textContent=c.flag+' '+c.name;
   document.getElementById('cover-country-subtitle').textContent=c.lang+' · '+c.currency+' · '+c.tz;
   const collage=document.getElementById('cover-collage');
-  // Generate fresh keyword-based URLs — each cell gets a unique topic from the country's keys list
-  const sizes=[[900,600],[500,300],[500,300],[500,300],[500,300]];
-  // Add a cache-bust timestamp per session so images refresh each visit but are stable within session
-  const bust=Math.floor(Date.now()/3600000); // changes every hour
-  const imgs=(c.keys||[c.name,c.name,c.name,c.name,c.name]).map((k,i)=>{
-    const [w,h]=sizes[i]||[500,300];
-    return`https://source.unsplash.com/featured/${w}x${h}/?${encodeURIComponent(k)}&sig=${bust+i}`;
-  });
-  collage.innerHTML=imgs.map((url,i)=>`
+  collage.innerHTML=(c.imgs||[]).map((url,i)=>`
     <div class="cover-img">
-      <img src="${url}" alt="${c.name}" loading="${i===0?'eager':'lazy'}">
+      <img src="${url}" alt="${c.name}" loading="${i===0?'eager':'lazy'}" onerror="this.style.opacity='0'">
     </div>`).join('');
   ['docs','flights','hotels','budget','places','packing'].forEach(id=>{
     const el=document.getElementById(id+'-dest-tag');
@@ -1371,14 +1378,12 @@ function renderPlacesGrid(cat){
   const name=state.country?.name||'default';
   let places=PLACES_DATA[name]||PLACES_DATA.default;
   if(cat!=='Todos')places=places.filter(p=>p.cat===cat);
-  const bust=Math.floor(Date.now()/3600000);
   document.getElementById('places-grid').innerHTML=places.map((p,i)=>{
     const pid=name+'_'+i;
     const want=state.places[pid]==='want',visited=state.places[pid]==='visited';
-    const imgSrc=`https://source.unsplash.com/featured/500x320/?${encodeURIComponent(p.key||p.name)}&sig=${bust+i+100}`;
     return`<div class="place-card">
       <div class="place-img">
-        <img src="${imgSrc}" alt="${p.name}" loading="lazy">
+        <img src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.style.opacity='0'">
         <span class="place-cat-badge">${p.emoji} ${p.cat}</span>
         ${want?'<span class="place-status want">❤️ Quiero ir</span>':''}
         ${visited?'<span class="place-status visited">✓ Visitado</span>':''}
