@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Michi Travel </title>
+<meta name="referrer" content="no-referrer">
+<title>Travel Planner ✈</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -666,211 +667,196 @@ tbody tr:hover{background:var(--lila);background:rgba(232,224,248,0.4)}
 
 <script>
 // ══════════════════════════════════════════════
-// SVG ILLUSTRATION GENERATOR — zero external dependencies
-// Each country gets a unique procedural scene
+// IMAGE SYSTEM — Unsplash with no-referrer
 // ══════════════════════════════════════════════
-const COUNTRY_SCENES = {
-  'Argentina':{sky:['#1a1a4e','#2d2d7a'],ground:'#8B6914',accent:'#C0392B',icon:'⭐',label:'Patagonia & Buenos Aires',
-    draws:(w,h)=>`
-    <defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a3a6e"/><stop offset="100%" stop-color="#4a7fb5"/></linearGradient>
-    <linearGradient id="mt" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6b9ec4"/><stop offset="100%" stop-color="#8fbbe0"/></linearGradient></defs>
-    <rect width="${w}" height="${h}" fill="url(#sk)"/>
-    <polygon points="${w*.1},${h} ${w*.3},${h*.35} ${w*.5},${h}" fill="url(#mt)" opacity=".9"/>
-    <polygon points="${w*.3},${h} ${w*.55},${h*.25} ${w*.8},${h}" fill="#5a8db0" opacity=".85"/>
-    <polygon points="${w*.6},${h} ${w*.8},${h*.4} ${w},${h}" fill="#7aaeca" opacity=".8"/>
-    <rect x="0" y="${h*.78}" width="${w}" height="${h*.22}" fill="#2d5016"/>
-    <rect x="0" y="${h*.85}" width="${w}" height="${h*.15}" fill="#3a6b1e"/>
-    <circle cx="${w*.15}" cy="${h*.12}" r="${w*.06}" fill="#fff" opacity=".9"/>
-    <text x="${w*.5}" y="${h*.93}" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="${w*.04}" font-family="DM Sans">🇦🇷 Patagonia</text>`},
-
-  'Brasil':{sky:['#1a4a2e','#2d7a4a'],ground:'#1a5c2e',accent:'#f39c12',icon:'🌴',label:'Rio de Janeiro',
-    draws:(w,h)=>`
-    <defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0d3b6e"/><stop offset="100%" stop-color="#1a6b9e"/></linearGradient></defs>
-    <rect width="${w}" height="${h}" fill="url(#sk)"/>
-    <ellipse cx="${w*.5}" cy="${h*.15}" rx="${w*.25}" ry="${w*.18}" fill="#1a5c2e" opacity=".95"/>
-    <polygon points="${w*.5},${h*.08} ${w*.43},${h*.22} ${w*.57},${h*.22}" fill="#2d8a4e"/>
-    <rect x="${w*.48}" y="${h*.22}" width="${w*.04}" height="${h*.15}" fill="#5d3a1a"/>
-    <path d="M0,${h*.6} Q${w*.25},${h*.5} ${w*.5},${h*.55} Q${w*.75},${h*.6} ${w},${h*.52}" fill="#1a6b9e" opacity=".6"/>
-    <rect x="0" y="${h*.72}" width="${w}" height="${h*.28}" fill="#c0973e" opacity=".9"/>
-    <path d="M${w*.3},${h*.72} Q${w*.5},${h*.6} ${w*.7},${h*.72}" fill="#e8c547" opacity=".4"/>
-    <text x="${w*.5}" y="${h*.93}" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="${w*.04}" font-family="DM Sans">🇧🇷 Rio de Janeiro</text>`},
-
-  'México':{sky:['#1a0a2e','#3a1a5e'],ground:'#8B7355',accent:'#e74c3c',icon:'🏛',label:'Chichén Itzá',
-    draws:(w,h)=>`
-    <defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a2a6e"/><stop offset="100%" stop-color="#d4785a"/></linearGradient></defs>
-    <rect width="${w}" height="${h}" fill="url(#sk)"/>
-    <circle cx="${w*.8}" cy="${h*.2}" r="${w*.08}" fill="#f39c12" opacity=".9"/>
-    <polygon points="${w*.5},${h*.3} ${w*.28},${h*.72} ${w*.72},${h*.72}" fill="#8B7355"/>
-    <polygon points="${w*.5},${h*.3} ${w*.47},${h*.52} ${w*.53},${h*.52}" fill="#a08060"/>
-    <rect x="${w*.46}" y="${h*.52}" width="${w*.08}" height="${h*.2}" fill="#6b5a3a"/>
-    <rect x="${w*.42}" y="${h*.68}" width="${w*.16}" height="${h*.04}" fill="#5a4a2e"/>
-    <rect x="0" y="${h*.72}" width="${w}" height="${h*.28}" fill="#3a6b1e"/>
-    <text x="${w*.5}" y="${h*.93}" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="${w*.04}" font-family="DM Sans">🇲🇽 Chichén Itzá</text>`},
-
-  'España':{sky:['#1a0a3e','#3a2a6e'],ground:'#c0973e',accent:'#e74c3c',icon:'⛪',label:'Barcelona · Madrid',
-    draws:(w,h)=>`
-    <defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a3a6e"/><stop offset="100%" stop-color="#e8b96e"/></linearGradient></defs>
-    <rect width="${w}" height="${h}" fill="url(#sk)"/>
-    <rect x="${w*.3}" y="${h*.25}" width="${w*.4}" height="${h*.5}" fill="#c0973e"/>
-    <polygon points="${w*.3},${h*.25} ${w*.5},${h*.1} ${w*.7},${h*.25}" fill="#a0793e"/>
-    <rect x="${w*.38}" y="${h*.25}" width="${w*.05}" height="${h*.25}" fill="#5a3a1e" opacity=".6"/>
-    <rect x="${w*.57}" y="${h*.25}" width="${w*.05}" height="${h*.25}" fill="#5a3a1e" opacity=".6"/>
-    <rect x="${w*.44}" y="${h*.5}" width="${w*.12}" height="${h*.25}" fill="#8B6030"/>
-    <circle cx="${w*.5}" cy="${h*.1}" r="${w*.02}" fill="#f39c12"/>
-    <rect x="0" y="${h*.75}" width="${w}" height="${h*.25}" fill="#c0973e" opacity=".7"/>
-    <text x="${w*.5}" y="${h*.93}" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="${w*.04}" font-family="DM Sans">🇪🇸 España</text>`},
-
-  'Francia':{sky:['#0a0a2e','#1a1a5e'],ground:'#2d5016',accent:'#c0392b',icon:'🗼',label:'París · Torre Eiffel',
-    draws:(w,h)=>`
-    <defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0a1a4e"/><stop offset="100%" stop-color="#2a4a8e"/></linearGradient></defs>
-    <rect width="${w}" height="${h}" fill="url(#sk)"/>
-    <polygon points="${w*.5},${h*.08} ${w*.46},${h*.45} ${w*.54},${h*.45}" fill="#8B8B8B"/>
-    <polygon points="${w*.46},${h*.45} ${w*.42},${h*.7} ${w*.58},${h*.7} ${w*.54},${h*.45}" fill="#7a7a7a"/>
-    <rect x="${w*.42}" y="${h*.38}" width="${w*.16}" height="${h*.02}" fill="#666" opacity=".8"/>
-    <rect x="${w*.4}" y="${h*.55}" width="${w*.2}" height="${h*.02}" fill="#666" opacity=".8"/>
-    <rect x="${w*.43}" y="${h*.7}" width="${w*.14}" height="${h*.05}" fill="#6a6a6a"/>
-    <circle cx="${w*.5}" cy="${h*.06}" r="${w*.008}" fill="#f39c12" opacity=".9"/>
-    <rect x="0" y="${h*.75}" width="${w}" height="${h*.25}" fill="#2d3a6e" opacity=".8"/>
-    <rect x="0" y="${h*.82}" width="${w}" height="${h*.18}" fill="#1a2a3e"/>
-    <text x="${w*.5}" y="${h*.93}" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="${w*.04}" font-family="DM Sans">🇫🇷 Paris · Torre Eiffel</text>`},
-
-  'Italia':{sky:['#1a2a6e','#3a5a9e'],ground:'#c0973e',accent:'#27ae60',icon:'🏛',label:'Roma · Coliseo',
-    draws:(w,h)=>`
-    <defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a3a6e"/><stop offset="100%" stop-color="#5a8ec0"/></linearGradient></defs>
-    <rect width="${w}" height="${h}" fill="url(#sk)"/>
-    <ellipse cx="${w*.5}" cy="${h*.55}" rx="${w*.32}" ry="${h*.3}" fill="none" stroke="#c0973e" stroke-width="${w*.025}" opacity=".9"/>
-    <ellipse cx="${w*.5}" cy="${h*.55}" rx="${w*.26}" ry="${h*.24}" fill="none" stroke="#a0793e" stroke-width="${w*.018}" opacity=".8"/>
-    <rect x="${w*.18}" y="${h*.28}" width="${w*.64}" height="${h*.02}" fill="#c0973e" opacity=".7"/>
-    <rect x="${w*.18}" y="${h*.78}" width="${w*.64}" height="${h*.02}" fill="#c0973e" opacity=".7"/>
-    ${[0.2,0.3,0.4,0.5,0.6,0.7,0.8].map(x=>`<rect x="${w*x}" y="${h*.28}" width="${w*.02}" height="${h*.5}" fill="#a0793e" opacity=".5"/>`).join('')}
-    <rect x="0" y="${h*.8}" width="${w}" height="${h*.2}" fill="#3a2a1e"/>
-    <text x="${w*.5}" y="${h*.93}" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="${w*.04}" font-family="DM Sans">🇮🇹 Roma · Coliseo</text>`},
-
-  'Estados Unidos':{sky:['#0a1a3e','#1a3a6e'],ground:'#2a2a2a',accent:'#c0392b',icon:'🗽',label:'New York City',
-    draws:(w,h)=>`
-    <defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#050a1e"/><stop offset="100%" stop-color="#1a2a5e"/></linearGradient></defs>
-    <rect width="${w}" height="${h}" fill="url(#sk)"/>
-    ${[[.08,.9,.05,.4],[.18,.85,.06,.5],[.3,.8,.08,.55],[.45,.75,.1,.65],[.58,.8,.07,.5],[.7,.85,.05,.4],[.82,.88,.06,.45],[.92,.9,.04,.35]].map(([x,base,bw,bh])=>`
-    <rect x="${w*x}" y="${h*(base-bh)}" width="${w*bw}" height="${h*bh}" fill="#1a2a4e" opacity=".9"/>
-    <rect x="${w*x}" y="${h*(base-bh)}" width="${w*bw}" height="${h*.02}" fill="#f39c12" opacity=".4"/>
-    ${Array.from({length:4},(_,i)=>`<rect x="${w*(x+.005+i*.012)}" y="${h*(base-bh+.04)}" width="${w*.008}" height="${h*.015}" fill="#f39c12" opacity="${Math.random()>.5?.6:.2}"/>`).join('')}`).join('')}
-    <rect x="0" y="${h*.88}" width="${w}" height="${h*.12}" fill="#111"/>
-    <text x="${w*.5}" y="${h*.95}" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="${w*.04}" font-family="DM Sans">🇺🇸 New York City</text>`},
-
-  'Japón':{sky:['#1a0a2e','#3a1a4e'],ground:'#2d5016',accent:'#e74c3c',icon:'🗻',label:'Monte Fuji · Japón',
-    draws:(w,h)=>`
-    <defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a0a2e"/><stop offset="100%" stop-color="#e8c4c4"/></linearGradient></defs>
-    <rect width="${w}" height="${h}" fill="url(#sk)"/>
-    <polygon points="${w*.5},${h*.1} ${w*.15},${h*.7} ${w*.85},${h*.7}" fill="#6a7a8a"/>
-    <polygon points="${w*.5},${h*.1} ${w*.42},${h*.28} ${w*.58},${h*.28}" fill="#f0f0f0"/>
-    <rect x="0" y="${h*.7}" width="${w}" height="${h*.08}" fill="#5a9e6e"/>
-    <rect x="0" y="${h*.78}" width="${w}" height="${h*.22}" fill="#3a6b4e"/>
-    <circle cx="${w*.75}" cy="${h*.18}" r="${w*.07}" fill="#e8c4c4" opacity=".6"/>
-    ${Array.from({length:6},(_,i)=>`<circle cx="${w*(i*.16+.05)}" cy="${h*.75}" r="${w*.025}" fill="#d4507a" opacity=".8"/>
-    <rect x="${w*(i*.16+.048)}" y="${h*.75}" width="${w*.004}" height="${h*.06}" fill="#5a3a1e"/>`).join('')}
-    <text x="${w*.5}" y="${h*.93}" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="${w*.04}" font-family="DM Sans">🇯🇵 Monte Fuji</text>`},
-
-  'Perú':{sky:['#1a0a2e','#2a1a4e'],ground:'#6B4226',accent:'#f39c12',icon:'🏔',label:'Machu Picchu',
-    draws:(w,h)=>`
-    <defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a2a4e"/><stop offset="100%" stop-color="#6a9e6e"/></linearGradient></defs>
-    <rect width="${w}" height="${h}" fill="url(#sk)"/>
-    <polygon points="0,${h} 0,${h*.45} ${w*.2},${h*.3} ${w*.4},${h*.45} ${w*.6},${h*.2} ${w*.8},${h*.38} ${w},${h*.3} ${w},${h}" fill="#3a5a2e"/>
-    <polygon points="${w*.4},${h*.45} ${w*.6},${h*.2} ${w*.8},${h*.38} ${w*.8},${h*.65} ${w*.4},${h*.65}" fill="#5a7a4e" opacity=".9"/>
-    ${Array.from({length:5},(_,i)=>`<rect x="${w*(.42+i*.06)}" y="${h*.5}" width="${w*.04}" height="${h*.15}" fill="#8B7355" opacity=".8"/>
-    <rect x="${w*(.42+i*.06)}" y="${h*.46}" width="${w*.04}" height="${h*.04}" fill="#a08060"/>`).join('')}
-    <rect x="0" y="${h*.8}" width="${w}" height="${h*.2}" fill="#4a6e3e"/>
-    <text x="${w*.5}" y="${h*.93}" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="${w*.04}" font-family="DM Sans">🇵🇪 Machu Picchu</text>`},
-
-  'Chile':{sky:['#0a1a3e','#1a3a6e'],ground:'#4a3a2a',accent:'#e74c3c',icon:'🏔',label:'Torres del Paine',
-    draws:(w,h)=>`
-    <defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a3a6e"/><stop offset="100%" stop-color="#6aace0"/></linearGradient></defs>
-    <rect width="${w}" height="${h}" fill="url(#sk)"/>
-    <polygon points="${w*.3},${h} ${w*.35},${h*.2} ${w*.38},${h*.18} ${w*.42},${h*.35} ${w*.42},${h}" fill="#6a7a8a"/>
-    <polygon points="${w*.45},${h} ${w*.5},${h*.15} ${w*.53},${h*.13} ${w*.57},${h*.3} ${w*.57},${h}" fill="#7a8a9a"/>
-    <polygon points="${w*.6},${h} ${w*.65},${h*.28} ${w*.68},${h*.26} ${w*.72},${h*.4} ${w*.72},${h}" fill="#5a6a7a"/>
-    <rect x="${w*.35}" y="${h*.18}" width="${w*.07}" height="${h*.04}" fill="#f0f0f0" opacity=".8"/>
-    <rect x="${w*.5}" y="${h*.13}" width="${w*.07}" height="${h*.03}" fill="#f0f0f0" opacity=".8"/>
-    <rect x="0" y="${h*.75}" width="${w}" height="${h*.05}" fill="#5a8ec0" opacity=".7"/>
-    <rect x="0" y="${h*.8}" width="${w}" height="${h*.2}" fill="#3a5a2e"/>
-    <text x="${w*.5}" y="${h*.93}" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="${w*.04}" font-family="DM Sans">🇨🇱 Torres del Paine</text>`},
-
-  'Colombia':{sky:['#0a1a2e','#1a3a6e'],ground:'#2d5016',accent:'#f39c12',icon:'🏰',label:'Cartagena de Indias',
-    draws:(w,h)=>`
-    <defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a3a8e"/><stop offset="100%" stop-color="#4a9ec0"/></linearGradient></defs>
-    <rect width="${w}" height="${h}" fill="url(#sk)"/>
-    <path d="M0,${h*.7} Q${w*.5},${h*.55} ${w},${h*.65}" fill="#2a6e9e" opacity=".8"/>
-    <rect x="0" y="${h*.75}" width="${w}" height="${h*.25}" fill="#c09e6e"/>
-    ${[[.1,.3,.12,.4],[.28,.28,.08,.42],[.45,.25,.15,.45],[.65,.3,.1,.4],[.8,.28,.12,.42]].map(([x,top,bw,bh])=>`
-    <rect x="${w*x}" y="${h*(top)}" width="${w*bw}" height="${h*bh}" fill="#d4ac6e"/>
-    <polygon points="${w*x},${h*top} ${w*(x+bw*.5)},${h*(top-.12)} ${w*(x+bw)},${h*top}" fill="#c07a3e"/>
-    <rect x="${w*(x+bw*.3)}" y="${h*(top+bh*.5)}" width="${w*(bw*.4)}" height="${h*(bh*.5)}" fill="#8B6030"/>`).join('')}
-    <text x="${w*.5}" y="${h*.93}" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="${w*.04}" font-family="DM Sans">🇨🇴 Cartagena de Indias</text>`},
-
-  'Tailandia':{sky:['#0a1a2e','#1a3a5e'],ground:'#2d6b3e',accent:'#f39c12',icon:'🏯',label:'Bangkok · Tailandia',
-    draws:(w,h)=>`
-    <defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#050a1e"/><stop offset="100%" stop-color="#1a4a6e"/></linearGradient></defs>
-    <rect width="${w}" height="${h}" fill="url(#sk)"/>
-    <rect x="${w*.35}" y="${h*.3}" width="${w*.3}" height="${h*.45}" fill="#c0973e"/>
-    <polygon points="${w*.35},${h*.3} ${w*.5},${h*.1} ${w*.65},${h*.3}" fill="#a0793e"/>
-    <polygon points="${w*.4},${h*.1} ${w*.5},${h*.02} ${w*.6},${h*.1}" fill="#f39c12" opacity=".9"/>
-    <rect x="${w*.42}" y="${h*.38}" width="${w*.05}" height="${h*.1}" fill="#8B6030" opacity=".7"/>
-    <rect x="${w*.53}" y="${h*.38}" width="${w*.05}" height="${h*.1}" fill="#8B6030" opacity=".7"/>
-    <rect x="${w*.44}" y="${h*.6}" width="${w*.12}" height="${h*.15}" fill="#6B4226"/>
-    <rect x="0" y="${h*.75}" width="${w}" height="${h*.08}" fill="#2d7a5a" opacity=".8"/>
-    <rect x="0" y="${h*.83}" width="${w}" height="${h*.17}" fill="#1a5a3e"/>
-    <text x="${w*.5}" y="${h*.93}" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="${w*.04}" font-family="DM Sans">🇹🇭 Bangkok</text>`},
+const COUNTRY_IMGS = {
+  'Argentina':[
+    'https://images.unsplash.com/photo-1612294037637-ec328d0e075e?w=900&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1547952236-2c71fcf4b9a0?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1612633979680-c72ee12bf96d?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1589557416862-a26b1b5a8d79?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1491555103944-7c647fd857e6?w=500&h=340&fit=crop&q=80',
+  ],
+  'Brasil':[
+    'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=900&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1518639192441-8fce0a366e2e?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1544989164-31807f8bfc3c?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1551708866-9f230c9b0e8c?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1580502304784-8985b7eb7260?w=500&h=340&fit=crop&q=80',
+  ],
+  'México':[
+    'https://images.unsplash.com/photo-1518638150340-f706e86654de?w=900&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1547995886-6dc09384c6e8?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1535359056830-d4badde79747?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1512813195386-6cf811ad3542?w=500&h=340&fit=crop&q=80',
+  ],
+  'España':[
+    'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=900&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1543783207-ec64e4d95325?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1555993539-1732b0258235?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1508050919630-b135583b29ab?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=500&h=340&fit=crop&q=80',
+  ],
+  'Francia':[
+    'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1431274172761-fca41d930114?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1595524958683-462a3c5b5229?w=500&h=340&fit=crop&q=80',
+  ],
+  'Italia':[
+    'https://images.unsplash.com/photo-1529260830199-42c24126f198?w=900&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1498307833015-e7b400441eb8?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1555990538-a88cc2a7bb55?w=500&h=340&fit=crop&q=80',
+  ],
+  'Estados Unidos':[
+    'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?w=900&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1501466044931-62695aada8e9?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&h=340&fit=crop&q=80',
+  ],
+  'Japón':[
+    'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=900&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1492571350019-22de08371fd3?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?w=500&h=340&fit=crop&q=80',
+  ],
+  'Perú':[
+    'https://images.unsplash.com/photo-1526392060635-9d6019884377?w=900&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1580619305218-8423a7ef79b4?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1569880153113-76161c291d1f?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1543169158-d16246bf7efe?w=500&h=340&fit=crop&q=80',
+  ],
+  'Chile':[
+    'https://images.unsplash.com/photo-1531967735-6f0be08e6c50?w=900&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1597429202987-d6ef51be01e9?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1547128870-15f7bdbf2e75?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1562601579-599dec564e06?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1568099440756-4a52eaaf0e26?w=500&h=340&fit=crop&q=80',
+  ],
+  'Colombia':[
+    'https://images.unsplash.com/photo-1583010005039-47a401a73e5e?w=900&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1574483060694-67f42dbdf2e8?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1568600891597-41dadb12c5b0?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1570268859898-1df2a4e7a83c?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1593994457408-bae4b2c63f49?w=500&h=340&fit=crop&q=80',
+  ],
+  'Tailandia':[
+    'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=900&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1528181304800-259b08848526?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=500&h=340&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1562602833-1eed1813d1ca?w=500&h=340&fit=crop&q=80',
+  ],
 };
 
-// Generate an SVG scene for a country panel
-function makeSceneSVG(countryName, w, h, panelIndex){
-  const scene = COUNTRY_SCENES[countryName];
-  if(!scene) return makeFallbackSVG(countryName, w, h, panelIndex);
-  const palettes = [
-    {bg1:'#0a1a3e',bg2:'#2a4a8e',accent:'#F4A7BA'},
-    {bg1:'#1a3a1a',bg2:'#3a6e3a',accent:'#A896DC'},
-    {bg1:'#3a1a1a',bg2:'#6e3a2a',accent:'#F9C8D4'},
-    {bg1:'#1a1a3a',bg2:'#3a3a6e',accent:'#C8E8F8'},
-    {bg1:'#2a2a1a',bg2:'#5a5a2a',accent:'#F4A7BA'},
-  ];
-  const p = palettes[panelIndex % palettes.length];
-  try {
-    const draws = scene.draws(w, h);
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${draws}</svg>`;
-  } catch(e) {
-    return makeFallbackSVG(countryName, w, h, panelIndex);
-  }
-}
+const PLACE_IMGS = {
+  // Argentina
+  'Cataratas del Iguazú':'https://images.unsplash.com/photo-1547952236-2c71fcf4b9a0?w=500&h=320&fit=crop&q=80',
+  'Buenos Aires – La Boca':'https://images.unsplash.com/photo-1612633979680-c72ee12bf96d?w=500&h=320&fit=crop&q=80',
+  'Mendoza – Tour de vinos':'https://images.unsplash.com/photo-1516594798947-e65505dbb29d?w=500&h=320&fit=crop&q=80',
+  'Patagonia – Bariloche':'https://images.unsplash.com/photo-1491555103944-7c647fd857e6?w=500&h=320&fit=crop&q=80',
+  'Obelisco de Buenos Aires':'https://images.unsplash.com/photo-1585464231875-d9ef1f5ad396?w=500&h=320&fit=crop&q=80',
+  'Palermo Soho':'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=500&h=320&fit=crop&q=80',
+  // Brasil
+  'Cristo Redentor':'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=500&h=320&fit=crop&q=80',
+  'Copacabana Beach':'https://images.unsplash.com/photo-1518639192441-8fce0a366e2e?w=500&h=320&fit=crop&q=80',
+  'Amazonia – Manaus':'https://images.unsplash.com/photo-1580502304784-8985b7eb7260?w=500&h=320&fit=crop&q=80',
+  'Carnaval de Río':'https://images.unsplash.com/photo-1551708866-9f230c9b0e8c?w=500&h=320&fit=crop&q=80',
+  'Feijoada carioca':'https://images.unsplash.com/photo-1594221708779-94832f4320d1?w=500&h=320&fit=crop&q=80',
+  'Pan de Azúcar':'https://images.unsplash.com/photo-1544989164-31807f8bfc3c?w=500&h=320&fit=crop&q=80',
+  // México
+  'Chichén Itzá':'https://images.unsplash.com/photo-1547995886-6dc09384c6e8?w=500&h=320&fit=crop&q=80',
+  'Tulum':'https://images.unsplash.com/photo-1535359056830-d4badde79747?w=500&h=320&fit=crop&q=80',
+  'Zócalo de Ciudad de México':'https://images.unsplash.com/photo-1518638150340-f706e86654de?w=500&h=320&fit=crop&q=80',
+  'Gastronomía mexicana':'https://images.unsplash.com/photo-1512813195386-6cf811ad3542?w=500&h=320&fit=crop&q=80',
+  'Cenotes de Yucatán':'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=500&h=320&fit=crop&q=80',
+  'Teotihuacán':'https://images.unsplash.com/photo-1504893524553-b855bce32c67?w=500&h=320&fit=crop&q=80',
+  // España
+  'Sagrada Família':'https://images.unsplash.com/photo-1543783207-ec64e4d95325?w=500&h=320&fit=crop&q=80',
+  'Alhambra de Granada':'https://images.unsplash.com/photo-1555993539-1732b0258235?w=500&h=320&fit=crop&q=80',
+  'Plaza Mayor de Madrid':'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=500&h=320&fit=crop&q=80',
+  'Tapas y gastronomía':'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&h=320&fit=crop&q=80',
+  'Park Güell':'https://images.unsplash.com/photo-1508050919630-b135583b29ab?w=500&h=320&fit=crop&q=80',
+  'Catedral de Sevilla':'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=500&h=320&fit=crop&q=80',
+  // Francia
+  'Torre Eiffel':'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=500&h=320&fit=crop&q=80',
+  'Louvre':'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=500&h=320&fit=crop&q=80',
+  'Mont Saint-Michel':'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&h=320&fit=crop&q=80',
+  'Provence y Lavanda':'https://images.unsplash.com/photo-1595524958683-462a3c5b5229?w=500&h=320&fit=crop&q=80',
+  'Gastronomía francesa':'https://images.unsplash.com/photo-1549144511-f099e773c147?w=500&h=320&fit=crop&q=80',
+  'Costa Azul – Niza':'https://images.unsplash.com/photo-1431274172761-fca41d930114?w=500&h=320&fit=crop&q=80',
+  // Italia
+  'Coliseo Romano':'https://images.unsplash.com/photo-1529260830199-42c24126f198?w=500&h=320&fit=crop&q=80',
+  'Canales de Venecia':'https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?w=500&h=320&fit=crop&q=80',
+  'Costa Amalfitana':'https://images.unsplash.com/photo-1498307833015-e7b400441eb8?w=500&h=320&fit=crop&q=80',
+  'Fontana di Trevi':'https://images.unsplash.com/photo-1533676802871-eca1ae998cd5?w=500&h=320&fit=crop&q=80',
+  'Pizza napolitana':'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500&h=320&fit=crop&q=80',
+  'Duomo de Florencia':'https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?w=500&h=320&fit=crop&q=80',
+  // EEUU
+  'Times Square':'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?w=500&h=320&fit=crop&q=80',
+  'Grand Canyon':'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=500&h=320&fit=crop&q=80',
+  'Estatua de la Libertad':'https://images.unsplash.com/photo-1501466044931-62695aada8e9?w=500&h=320&fit=crop&q=80',
+  'Central Park':'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=500&h=320&fit=crop&q=80',
+  'Miami South Beach':'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&h=320&fit=crop&q=80',
+  'Gastronomía NY':'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&h=320&fit=crop&q=80',
+  // Japón
+  'Monte Fuji':'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=500&h=320&fit=crop&q=80',
+  'Templo Kinkaku-ji':'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=500&h=320&fit=crop&q=80',
+  'Shibuya Crossing':'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=500&h=320&fit=crop&q=80',
+  'Sakura – Flor de cerezo':'https://images.unsplash.com/photo-1492571350019-22de08371fd3?w=500&h=320&fit=crop&q=80',
+  'Gastronomía japonesa':'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=500&h=320&fit=crop&q=80',
+  'Castillo de Osaka':'https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?w=500&h=320&fit=crop&q=80',
+  // Perú
+  'Machu Picchu':'https://images.unsplash.com/photo-1526392060635-9d6019884377?w=500&h=320&fit=crop&q=80',
+  'Cusco – Ciudad Inca':'https://images.unsplash.com/photo-1580619305218-8423a7ef79b4?w=500&h=320&fit=crop&q=80',
+  'Lago Titicaca':'https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=500&h=320&fit=crop&q=80',
+  'Líneas de Nazca':'https://images.unsplash.com/photo-1569880153113-76161c291d1f?w=500&h=320&fit=crop&q=80',
+  'Ceviche peruano':'https://images.unsplash.com/photo-1543169158-d16246bf7efe?w=500&h=320&fit=crop&q=80',
+  'Arequipa – Ciudad Blanca':'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=320&fit=crop&q=80',
+  // Chile
+  'Torres del Paine':'https://images.unsplash.com/photo-1531967735-6f0be08e6c50?w=500&h=320&fit=crop&q=80',
+  'Desierto de Atacama':'https://images.unsplash.com/photo-1597429202987-d6ef51be01e9?w=500&h=320&fit=crop&q=80',
+  'Isla de Pascua – Moai':'https://images.unsplash.com/photo-1547128870-15f7bdbf2e75?w=500&h=320&fit=crop&q=80',
+  'Valparaíso':'https://images.unsplash.com/photo-1562601579-599dec564e06?w=500&h=320&fit=crop&q=80',
+  'Ruta del Vino':'https://images.unsplash.com/photo-1568099440756-4a52eaaf0e26?w=500&h=320&fit=crop&q=80',
+  'Santiago – Vista panorámica':'https://images.unsplash.com/photo-1598021036553-01f65023e82a?w=500&h=320&fit=crop&q=80',
+  // Colombia
+  'Ciudad Amurallada – Cartagena':'https://images.unsplash.com/photo-1583010005039-47a401a73e5e?w=500&h=320&fit=crop&q=80',
+  'Medellín – El Poblado':'https://images.unsplash.com/photo-1574483060694-67f42dbdf2e8?w=500&h=320&fit=crop&q=80',
+  'Café colombiano':'https://images.unsplash.com/photo-1568600891597-41dadb12c5b0?w=500&h=320&fit=crop&q=80',
+  'Bogotá desde Monserrate':'https://images.unsplash.com/photo-1570268859898-1df2a4e7a83c?w=500&h=320&fit=crop&q=80',
+  'San Andrés':'https://images.unsplash.com/photo-1593994457408-bae4b2c63f49?w=500&h=320&fit=crop&q=80',
+  'Parque Tayrona':'https://images.unsplash.com/photo-1448375240586-882707db888b?w=500&h=320&fit=crop&q=80',
+  // Tailandia
+  'Gran Palacio de Bangkok':'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=500&h=320&fit=crop&q=80',
+  'Islas Phi Phi':'https://images.unsplash.com/photo-1519011985143-a2d6fef90483?w=500&h=320&fit=crop&q=80',
+  'Templos de Chiang Mai':'https://images.unsplash.com/photo-1528181304800-259b08848526?w=500&h=320&fit=crop&q=80',
+  'Mercado Flotante':'https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=500&h=320&fit=crop&q=80',
+  'Street food Bangkok':'https://images.unsplash.com/photo-1562602833-1eed1813d1ca?w=500&h=320&fit=crop&q=80',
+  'Maya Bay – Phuket':'https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=500&h=320&fit=crop&q=80',
+};
 
-function makeFallbackSVG(name, w, h, i){
-  const colors = ['#1a3a6e','#2d5a3a','#5a2d1a','#3a1a5a','#1a3a3a'];
-  const c = colors[i%colors.length];
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
-    <rect width="${w}" height="${h}" fill="${c}"/>
-    <text x="${w/2}" y="${h/2}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,0.5)" font-size="${w*.08}" font-family="DM Sans">${name}</text>
-  </svg>`;
-}
+// Gradient fallback per category (used if image fails)
+const CAT_GRAD = {
+  'Imperdibles':'linear-gradient(135deg,#1a3a6e,#3a6a9e)',
+  'Naturaleza':'linear-gradient(135deg,#1a3a1a,#3a7a4a)',
+  'Gastronomía':'linear-gradient(135deg,#3a1a1a,#7a3a2a)',
+  'Cultura':'linear-gradient(135deg,#2a1a3a,#6a3a7a)',
+  'Fotografía':'linear-gradient(135deg,#1a2a3a,#4a6a8a)',
+  'Compras':'linear-gradient(135deg,#3a2a1a,#7a5a2a)',
+};
 
-function makePlaceSVG(name, cat, emoji, w, h){
-  const catColors = {
-    'Imperdibles':['#1a3a6e','#3a6a9e'],
-    'Naturaleza':['#1a3a1a','#3a7a4a'],
-    'Gastronomía':['#3a1a1a','#7a3a2a'],
-    'Cultura':['#2a1a3a','#6a3a7a'],
-    'Fotografía':['#1a2a3a','#4a6a8a'],
-    'Compras':['#3a2a1a','#7a5a2a'],
-    'default':['#1a1a3a','#3a3a6a'],
-  };
-  const [c1,c2] = catColors[cat]||catColors.default;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
-    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs>
-    <rect width="${w}" height="${h}" fill="url(#g)"/>
-    <text x="${w/2}" y="${h*0.42}" text-anchor="middle" font-size="${h*.38}" font-family="serif">${emoji}</text>
-    <text x="${w/2}" y="${h*0.78}" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="${Math.min(h*.1,14)}" font-family="DM Sans,sans-serif">${name.length>18?name.slice(0,18)+'…':name}</text>
-  </svg>`;
-}
+function getPlaceImg(name){return PLACE_IMGS[name]||'';}
+function getCountryImgs(name){return COUNTRY_IMGS[name]||[];}
 
-function svgToDataUrl(svg){ return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg); }
-
+const COUNTRY_SCENES = null; // SVG system removed
 const COUNTRIES = [
   {name:'Argentina',flag:'🇦🇷',currency:'ARS – Peso argentino',lang:'Español',tz:'UTC-3',flight:'7-9h desde BOG',pax:'Visa libre 90d',climate:'Templado',temp:'15-28°C',rain:'35%',season:'Verano (dic-feb)',budget:'COP 6.000.000 – 12.000.000',cities:['Buenos Aires (EZE)','Córdoba (COR)','Mendoza (MDZ)','Bariloche (BRC)']},
   {name:'Brasil',flag:'🇧🇷',currency:'BRL – Real brasileño',lang:'Portugués',tz:'UTC-3',flight:'5-7h desde BOG',pax:'Pasaporte válido',climate:'Tropical',temp:'24-35°C',rain:'60%',season:'Verano húmedo',budget:'COP 5.500.000 – 10.000.000',cities:['Río de Janeiro (GIG)','São Paulo (GRU)','Florianópolis (FLN)','Salvador (SSA)','Manaos (MAO)']},
@@ -885,7 +871,6 @@ const COUNTRIES = [
   {name:'Colombia',flag:'🇨🇴',currency:'COP – Peso colombiano',lang:'Español',tz:'UTC-5',flight:'Vuelo doméstico',pax:'Cédula colombiana',climate:'Tropical variado',temp:'18-30°C',rain:'50%',season:'Según región',budget:'COP 1.000.000 – 4.000.000',cities:['Bogotá (BOG)','Medellín (MDE)','Cali (CLO)','Cartagena (CTG)','Barranquilla (BAQ)','Pereira (PEI)','Bucaramanga (BGA)']},
   {name:'Tailandia',flag:'🇹🇭',currency:'THB – Baht tailandés',lang:'Tailandés',tz:'UTC+7',flight:'22-25h desde BOG',pax:'Pasaporte + visa libre 30d',climate:'Tropical húmedo',temp:'26-35°C',rain:'55%',season:'Seca (nov-abr)',budget:'COP 8.000.000 – 16.000.000',cities:['Bangkok (BKK)','Phuket (HKT)','Chiang Mai (CNX)','Krabi (KBV)']},
 ];
-
 const CITIES = [
   'Bogotá (BOG)','Medellín (MDE)','Cali (CLO)','Cartagena (CTG)','Barranquilla (BAQ)',
   'Buenos Aires (EZE)','Río de Janeiro (GIG)','São Paulo (GRU)','Lima (LIM)','Santiago (SCL)',
@@ -1212,11 +1197,15 @@ function buildCoverPage(c){
   document.getElementById('cover-country-name').textContent=c.flag+' '+c.name;
   document.getElementById('cover-country-subtitle').textContent=c.lang+' · '+c.currency+' · '+c.tz;
   const collage=document.getElementById('cover-collage');
-  const sizes=[[900,600],[500,340],[500,340],[500,340],[500,340]];
-  collage.innerHTML=sizes.map(([w,h],i)=>{
-    const svg=makeSceneSVG(c.name,w,h,i);
-    const url=svgToDataUrl(svg);
-    return`<div class="cover-img"><img src="${url}" alt="${c.name}" loading="${i===0?'eager':'lazy'}"></div>`;
+  const imgs=getCountryImgs(c.name);
+  const gradients=['linear-gradient(135deg,#1a3a6e,#4a7ab5)','linear-gradient(135deg,#1a3a1a,#3a7a4a)','linear-gradient(135deg,#3a1a2a,#7a3a5a)','linear-gradient(135deg,#2a1a3a,#5a3a7a)','linear-gradient(135deg,#3a2a1a,#7a5a2a)'];
+  collage.innerHTML=Array.from({length:5},(_,i)=>{
+    const url=imgs[i]||'';
+    const grad=gradients[i%gradients.length];
+    if(url){
+      return`<div class="cover-img"><img src="${url}" referrerpolicy="no-referrer" crossorigin="anonymous" alt="${c.name}" loading="${i===0?'eager':'lazy'}" onerror="this.parentElement.style.background='${grad}';this.style.display='none'"></div>`;
+    }
+    return`<div class="cover-img" style="background:${grad};display:flex;align-items:center;justify-content:center"><span style="font-size:3rem">${c.flag}</span></div>`;
   }).join('');
   ['docs','flights','hotels','budget','places','packing'].forEach(id=>{
     const el=document.getElementById(id+'-dest-tag');
@@ -1558,11 +1547,14 @@ function renderPlacesGrid(cat){
   document.getElementById('places-grid').innerHTML=places.map((p,i)=>{
     const pid=name+'_'+i;
     const want=state.places[pid]==='want',visited=state.places[pid]==='visited';
-    const svg=makePlaceSVG(p.name,p.cat,p.emoji,500,320);
-    const imgUrl=svgToDataUrl(svg);
+    const imgUrl=getPlaceImg(p.name);
+    const grad=CAT_GRAD[p.cat]||CAT_GRAD['Imperdibles'];
+    const imgTag=imgUrl
+      ?`<img src="${imgUrl}" referrerpolicy="no-referrer" crossorigin="anonymous" alt="${p.name}" loading="lazy" onerror="this.parentElement.style.background='${grad}';this.style.display='none'">`
+      :`<div style="width:100%;height:100%;background:${grad};display:flex;align-items:center;justify-content:center;font-size:2.5rem">${p.emoji}</div>`;
     return`<div class="place-card">
-      <div class="place-img">
-        <img src="${imgUrl}" alt="${p.name}">
+      <div class="place-img" style="background:${grad}">
+        ${imgTag}
         <span class="place-cat-badge">${p.emoji} ${p.cat}</span>
         ${want?'<span class="place-status want">❤️ Quiero ir</span>':''}
         ${visited?'<span class="place-status visited">✓ Visitado</span>':''}
@@ -1570,9 +1562,7 @@ function renderPlacesGrid(cat){
       <div class="place-body">
         <div class="place-name">${p.name}</div>
         <div class="place-meta">
-          <span>⏱ ${p.time}</span>
-          <span>💰 ${p.cost}</span>
-          <span>📍 ${p.dist}</span>
+          <span>⏱ ${p.time}</span><span>💰 ${p.cost}</span><span>📍 ${p.dist}</span>
         </div>
         <div class="place-actions">
           <button class="place-btn ${want?'active-want':''}" onclick="togglePlace('${pid}','want')">❤️ Quiero ir</button>
